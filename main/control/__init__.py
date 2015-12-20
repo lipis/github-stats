@@ -10,3 +10,5 @@ from .letsencrypt import *
 from .profile import *
 from .test import *
 from .welcome import *
+from .account import *
+from .repo import *

@@ -17,6 +17,8 @@
 
   <div class="row text-center">
     {{admin_link('User List', 'group', url_for('user_list', order='-modified', active=True))}}
+    {{admin_link('Account List', 'github-alt', url_for('admin_account_list'))}}
+    {{admin_link('Repo List', 'github', url_for('admin_repo_list'))}}
   </div>
 
   <div class="page-header">

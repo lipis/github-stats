@@ -1,0 +1,27 @@
+# extends 'admin/admin_base.html'
+# import 'macro/forms.html' as forms
+# import 'macro/utils.html' as utils
+
+
+# block admin_content
+  <div class="row">
+    <div class="col-sm-6">
+      <form method="POST" action="." novalidate>
+        {{form.csrf_token}}
+        {{forms.text_field(form.username, autofocus=True)}}
+        {{forms.text_field(form.name)}}
+        {{forms.number_field(form.stars)}}
+        {{forms.number_field(form.rank)}}
+        {{forms.checkbox_field(form.organization)}}
+        {{forms.text_field(form.status)}}
+        <button type="submit" class="btn btn-primary btn-block btn-loading" {{forms.data_loading_text()}}>
+          # if account_db.key
+            Update
+          # else
+            Create
+          # endif
+        </button>
+      </form>
+    </div>
+  </div>
+# endblock

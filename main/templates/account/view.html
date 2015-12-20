@@ -1,0 +1,36 @@
+# extends 'base.html'
+# import 'macro/forms.html' as forms
+# import 'macro/utils.html' as utils
+
+
+# block content
+  <div class="row">
+    <div class="col-sm-4">
+      <p>
+        <img class="img-thumbnail" src="{{account_db.avatar_url}}?size=512" alt="Avatar of {{account_db.name}}">
+      </p>
+      <h2>{{account_db.name}}</h2>
+      <h4><span class="fa fa-fw fa-star"></span> {{account_db.stars}}</h4>
+      <h4><span class="fa fa-fw fa-code-fork"></span> {{account_db.public_repos}}</h4>
+      <h5>
+        <span class="fa fa-fw fa-refresh"></span>
+        <time datetime="{{account_db.modified}}">
+          {{account_db.modified.strftime('%Y-%m-%d')}}
+        </time>
+        <small>({{account_db.status}})</small>
+      </h5>
+    </div>
+    <div class="col-sm-8">
+      <table class="table table-striped table-bordered table-hover">
+        <tbody>
+          # for repo_db in repo_dbs
+            <tr>
+              <td class="col-xs-12">{{repo_db.name}}</td>
+              <td class="text-nowrap text-right">{{repo_db.stars}} <span class="fa fa-fw fa-star"></span></td>
+            </tr>
+          # endfor
+        </tbody>
+      </table>
+    </div>
+  </div>
+# endblock
