@@ -42,6 +42,10 @@ class ProfileUpdateForm(wtf.Form):
       [wtforms.validators.optional(), wtforms.validators.email()],
       filters=[util.email_filter],
     )
+  github = wtforms.StringField(
+      model.User.github._verbose_name,
+      [wtforms.validators.optional()], filters=[util.strip_filter],
+    )
 
 
 @app.route('/profile/update/', methods=['GET', 'POST'])

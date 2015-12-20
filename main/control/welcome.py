@@ -3,6 +3,8 @@
 import flask
 
 import config
+import model
+import util
 
 from main import app
 
@@ -12,7 +14,30 @@ from main import app
 ###############################################################################
 @app.route('/')
 def welcome():
-  return flask.render_template('welcome.html', html_class='welcome')
+  user_dbs, user_cursor = model.Account.get_dbs(
+      order='-stars',
+      limit=16,
+      organization=False,
+    )
+
+  organization_dbs, organization_cursor = model.Account.get_dbs(
+      order='-stars',
+      limit=16,
+      organization=True,
+    )
+
+  repo_dbs, repo_cursor = model.Repo.get_dbs(
+      order='-stars',
+      limit=16,
+    )
+
+  return flask.render_template(
+      'welcome.html',
+      html_class='welcome',
+      user_dbs=user_dbs,
+      organization_dbs=organization_dbs,
+      repo_dbs=repo_dbs,
+    )
 
 
 ###############################################################################

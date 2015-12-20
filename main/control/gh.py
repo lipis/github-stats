@@ -14,8 +14,8 @@ import util
 from main import app
 
 
-@app.route('/<username>/')
-def gh(username):
+@app.route('/<username>')
+def gh_account(username):
   username = username.lower()
   account_db = model.Account.get_by_id(username)
 
@@ -26,22 +26,14 @@ def gh(username):
     except github.GithubException as error:
       return flask.abort(error.status)
 
-    # return '%r' % dir(account)
     account_db = model.Account.get_or_insert(
         account.login,
         username=account.login,
-        name=account.name,
+        name=account.name or account.login,
         avatar_url=account.avatar_url.split('?')[0],
         organization=account.type == 'Organization',
         public_repos=account.public_repos,
       )
-
-  # g = github.Github(config.CONFIG_DB.github_username, config.CONFIG_DB.github_password)
-  # account = g.get_user(username)
-  # for repo in account.get_repos():
-  #   return '%r' % repo.name
-  #   return '%r' % dir(repo)
-  # return ''
 
   queue_account(account_db)
   repo_dbs, repo_cursor = account_db.get_repo_dbs()
@@ -86,6 +78,8 @@ def sync_account(account_db):
         name=repo.name,
         description=repo.description,
         stars=repo.stargazers_count,
+        avatar_url=account_db.avatar_url,
+        account_username=account_db.username,
       )
 
     repo_db.name = repo.name
@@ -97,6 +91,7 @@ def sync_account(account_db):
   if repo_dbs:
     ndb.put_multi(repo_dbs)
 
+  account_db.name = account.name or account.login
   account_db.status = 'synced'
   account_db.stars = stars
   account_db.put()

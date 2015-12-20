@@ -47,10 +47,14 @@ def signin_github():
 def retrieve_user_from_github(response):
   auth_id = 'github_%s' % str(response['id'])
   user_db = model.User.get_by('auth_ids', auth_id)
+  if user_db:
+    user_db.github = response.get('login')
+    user_db.put()
   return user_db or auth.create_user_db(
       auth_id,
       response.get('name', response.get('login')),
       response.get('login'),
       response.get('email', ''),
       verified=bool(response.get('email', '')),
+      github=response.get('login'),
     )
