@@ -18,6 +18,10 @@ class Account(model.Base):
   avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
   public_repos = ndb.IntegerProperty(default=0)
 
+  @ndb.ComputedProperty
+  def stars_hu(self):
+    return '{:,}'.format(self.stars)
+
   def get_repo_dbs(self, **kwargs):
     return model.Repo.get_dbs(
         ancestor=self.key,

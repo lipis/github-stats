@@ -50,7 +50,10 @@ window.init_announcement = ->
 
 window.init_row_link = ->
   $('body').on 'click', '.row-link', ->
-    window.location.href = $(this).data 'href'
+    if $(this).data 'target'
+      window.open $(this).data 'href'
+    else
+      window.location.href = $(this).data 'href'
 
   $('body').on 'click', '.not-link', (e) ->
     e.stopPropagation()

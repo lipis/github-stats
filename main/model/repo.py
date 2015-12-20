@@ -15,6 +15,14 @@ class Repo(model.Base):
   account_username = ndb.StringProperty(required=True)
   avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
 
+  @ndb.ComputedProperty
+  def stars_hu(self):
+    return '{:,}'.format(self.stars)
+
+  @ndb.ComputedProperty
+  def url(self):
+    return 'https://github.com/%s/%s' % (self.account_username, self.name)
+
   FIELDS = {
       'name': fields.String,
       'description': fields.String,

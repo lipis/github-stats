@@ -1,0 +1,16 @@
+# extends 'admin/admin_base.html'
+# import 'macro/forms.html' as forms
+# import 'macro/utils.html' as utils
+
+
+# block admin_content
+
+  <a href="{{next}}">{{next}}</a>
+
+  <h3>{{repos['items']|count}} of {{repos['total_count']}}</h3>
+  <ul>
+    # for item in repos['items']
+      <li>{{item['stargazers_count']}} - {{item['full_name']}}</li>
+    # endfor
+  </ul>
+# endblock

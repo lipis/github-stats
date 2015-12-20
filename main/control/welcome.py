@@ -14,21 +14,20 @@ from main import app
 ###############################################################################
 @app.route('/')
 def welcome():
+  if util.param('username'):
+    return flask.redirect(flask.url_for('gh_account', username=util.param('username')))
   user_dbs, user_cursor = model.Account.get_dbs(
       order='-stars',
-      limit=16,
       organization=False,
     )
 
   organization_dbs, organization_cursor = model.Account.get_dbs(
       order='-stars',
-      limit=16,
       organization=True,
     )
 
   repo_dbs, repo_cursor = model.Repo.get_dbs(
       order='-stars',
-      limit=16,
     )
 
   return flask.render_template(

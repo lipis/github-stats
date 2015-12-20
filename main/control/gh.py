@@ -1,12 +1,15 @@
 # coding: utf-8
 
 from datetime import datetime
+import flask
+import json
 
 from google.appengine.ext import ndb
 from google.appengine.ext import deferred
-import flask
+from google.appengine.api import urlfetch
 import github
 
+import auth
 import config
 import model
 import util
@@ -40,24 +43,63 @@ def gh_account(username):
 
   return flask.render_template(
       'account/view.html',
-      html_class='account-view',
+      html_class='gh-view',
       title=account_db.name,
       account_db=account_db,
       repo_dbs=repo_dbs,
       next_url=util.generate_next_url(repo_cursor),
+      username=account_db.username,
+    )
+
+
+@app.route('/admin/top/')
+@auth.admin_required
+#TODO: Fix the ugliness
+def gh_admin_top():
+  stars = util.param('stars', int) or 30000
+  page = util.param('page', int) or 1
+  result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&page=%d' % (stars, page))
+  if result.status_code == 200:
+    repos = json.loads(result.content)
+
+  for repo in repos['items']:
+    account = repo['owner']
+    account_db = model.Account.get_or_insert(
+        account['login'],
+        username=account['login'],
+        name=account['login'],
+        avatar_url=account['avatar_url'].split('?')[0],
+        organization=account['type'] == 'Organization',
+      )
+    queue_account(account_db)
+  return flask.render_template(
+      'admin/popular.html',
+      title='Top Repositories',
+      next=flask.url_for('gh_admin_top', stars=stars, page=page + 1),
+      repos=repos,
     )
 
 
 ###############################################################################
 # Tasks
 ###############################################################################
-
 def queue_account(account_db):
+  queue_it = False
   if account_db.status in ['new', 'error']:
     account_db.status = 'syncing'
     account_db.put()
+    queue_it = True
 
-  deferred.defer(sync_account, account_db)
+  delta = (datetime.utcnow() - account_db.modified)
+
+  if account_db.status == 'syncing' and delta.seconds > 60 * 5:
+    queue_it = True
+
+  if delta.days > 0:
+    queue_it = True
+
+  if queue_it:
+    deferred.defer(sync_account, account_db)
 
 
 def sync_account(account_db):
@@ -94,4 +136,5 @@ def sync_account(account_db):
   account_db.name = account.name or account.login
   account_db.status = 'synced'
   account_db.stars = stars
+  account_db.public_repos = account.public_repos
   account_db.put()
