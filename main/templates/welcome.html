@@ -4,7 +4,7 @@
 # block content
   <div class="row">
     <div class="col-sm-4">
-      <h2>Users</h2>
+      <h2 class="text-center"><a href="{{url_for('user')}}">Users</a></h2>
       <table class="table table-striped table-bordered table-hover gh-list">
         <tbody>
           # for account_db in user_dbs
@@ -18,9 +18,12 @@
           # endfor
         </tbody>
       </table>
+      <ul class="pager">
+        <li><a href="{{url_for('user')}}">More users..</a></li>
+      </ul>
     </div>
     <div class="col-sm-4">
-      <h2>Organizations</h2>
+      <h2 class="text-center"><a href="{{url_for('organization')}}">Organizations</a></h2>
       <table class="table table-striped table-bordered table-hover gh-list">
         <tbody>
           # for account_db in organization_dbs
@@ -34,9 +37,12 @@
           # endfor
         </tbody>
       </table>
+      <ul class="pager">
+        <li><a href="{{url_for('organization')}}">More organizations..</a></li>
+      </ul>
     </div>
     <div class="col-sm-4">
-      <h2>Repositories</h2>
+      <h2 class="text-center"><a href="{{url_for('repo')}}">Repositories</a></h2>
       <table class="table table-striped table-bordered table-hover gh-list">
         <tbody>
           # for repo_db in repo_dbs
@@ -50,6 +56,9 @@
           # endfor
         </tbody>
       </table>
+      <ul class="pager">
+        <li><a href="{{url_for('repo')}}">More repositories..</a></li>
+      </ul>
     </div>
   </div>
 # endblock

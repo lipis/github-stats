@@ -1,9 +1,9 @@
 # coding: utf-8
 
 from datetime import datetime
-import flask
 import json
 
+import flask
 from google.appengine.ext import ndb
 from google.appengine.ext import deferred
 from google.appengine.api import urlfetch
@@ -13,6 +13,7 @@ import auth
 import config
 import model
 import util
+import task
 
 from main import app
 
@@ -38,7 +39,7 @@ def gh_account(username):
         public_repos=account.public_repos,
       )
 
-  queue_account(account_db)
+  task.queue_account(account_db)
   repo_dbs, repo_cursor = account_db.get_repo_dbs()
 
   return flask.render_template(
@@ -53,12 +54,12 @@ def gh_account(username):
 
 
 @app.route('/admin/top/')
-@auth.admin_required
 #TODO: Fix the ugliness
 def gh_admin_top():
   stars = util.param('stars', int) or 30000
   page = util.param('page', int) or 1
-  result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&page=%d' % (stars, page))
+  per_page = util.param('per_page', int) or 16
+  result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&page=%d&per_page=%d' % (stars, page, per_page))
   if result.status_code == 200:
     repos = json.loads(result.content)
 
@@ -71,70 +72,34 @@ def gh_admin_top():
         avatar_url=account['avatar_url'].split('?')[0],
         organization=account['type'] == 'Organization',
       )
-    queue_account(account_db)
   return flask.render_template(
       'admin/popular.html',
       title='Top Repositories',
-      next=flask.url_for('gh_admin_top', stars=stars, page=page + 1),
+      next=flask.url_for('gh_admin_top', stars=stars, page=page + 1, per_page=per_page),
       repos=repos,
+      stars=stars,
+      page=page,
+      per_page=per_page,
     )
 
 
-###############################################################################
-# Tasks
-###############################################################################
-def queue_account(account_db):
-  queue_it = False
-  if account_db.status in ['new', 'error']:
-    account_db.status = 'syncing'
-    account_db.put()
-    queue_it = True
+@app.route('/admin/cron/sync/')
+def admin_cron():
+  if 'X-Appengine-Cron' not in flask.request.headers:
+    flask.abort(403)
+  account_dbs, account_cursor = model.Account.get_dbs(
+      order=util.param('order') or 'modified',
+      status=util.param('status'),
+    )
 
-  delta = (datetime.utcnow() - account_db.modified)
-
-  if account_db.status == 'syncing' and delta.seconds > 60 * 5:
-    queue_it = True
-
-  if delta.days > 0:
-    queue_it = True
-
-  if queue_it:
-    deferred.defer(sync_account, account_db)
-
-
-def sync_account(account_db):
-  g = github.Github(config.CONFIG_DB.github_username, config.CONFIG_DB.github_password)
-  try:
-    account = g.get_user(account_db.username)
-  except github.GithubException as error:
-    account_db.status = 'error'
-
-  stars = 0
-  repo_dbs = []
-
-  for repo in account.get_repos():
-    name = repo.name.lower()
-    repo_db = model.Repo.get_or_insert(
-        name,
-        parent=account_db.key,
-        name=repo.name,
-        description=repo.description,
-        stars=repo.stargazers_count,
-        avatar_url=account_db.avatar_url,
-        account_username=account_db.username,
-      )
-
-    repo_db.name = repo.name
-    repo_db.description = repo.description
-    repo_db.stars = repo.stargazers_count
-
-    stars += repo_db.stars
-
-  if repo_dbs:
-    ndb.put_multi(repo_dbs)
-
-  account_db.name = account.name or account.login
-  account_db.status = 'synced'
-  account_db.stars = stars
-  account_db.public_repos = account.public_repos
-  account_db.put()
+  if util.param('sync', bool):
+    for account_db in account_dbs:
+      task.queue_account(account_db)
+    flask.flash('Trying to sync %s accounts' % len(account_dbs))
+  return flask.render_template(
+      'account/admin_account_list.html',
+      html_class='admin-account-list',
+      title='Account List',
+      account_dbs=account_dbs,
+      next_url=util.generate_next_url(account_cursor),
+    )

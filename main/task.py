@@ -1,13 +1,17 @@
 # coding: utf-8
 
+from datetime import datetime
 import logging
 
-import flask
 from google.appengine.api import mail
 from google.appengine.ext import deferred
+from google.appengine.ext import ndb
+import flask
+import github
 
 import config
 import util
+import model
 
 
 ###############################################################################
@@ -154,3 +158,63 @@ def email_conflict_notification(email):
       flask.url_for('user_list', email=email, _external=True),
     )
   send_mail_notification('Conflict with: %s' % email, body)
+
+
+###############################################################################
+# GH Tasks
+###############################################################################
+def queue_account(account_db):
+  queue_it = False
+  if account_db.status in ['new', 'error']:
+    account_db.status = 'syncing'
+    account_db.put()
+    queue_it = True
+
+  delta = (datetime.utcnow() - account_db.modified)
+
+  if account_db.status == 'syncing' and delta.seconds > 60 * 5:
+    queue_it = True
+
+  if delta.days > 0:
+    queue_it = True
+
+  if queue_it:
+    deferred.defer(sync_account, account_db)
+
+
+def sync_account(account_db):
+  g = github.Github(config.CONFIG_DB.github_username, config.CONFIG_DB.github_password)
+  try:
+    account = g.get_user(account_db.username)
+  except github.GithubException as error:
+    account_db.status = 'error'
+
+  stars = 0
+  repo_dbs = []
+
+  for repo in account.get_repos():
+    name = repo.name.lower()
+    repo_db = model.Repo.get_or_insert(
+        name,
+        parent=account_db.key,
+        name=repo.name,
+        description=repo.description,
+        stars=repo.stargazers_count,
+        avatar_url=account_db.avatar_url,
+        account_username=account_db.username,
+      )
+
+    repo_db.name = repo.name
+    repo_db.description = repo.description
+    repo_db.stars = repo.stargazers_count
+
+    stars += repo_db.stars
+
+  if repo_dbs:
+    ndb.put_multi(repo_dbs)
+
+  account_db.name = account.name or account.login
+  account_db.status = 'synced'
+  account_db.stars = stars
+  account_db.public_repos = account.public_repos
+  account_db.put()

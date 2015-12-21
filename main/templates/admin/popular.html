@@ -7,7 +7,7 @@
 
   <a href="{{next}}">{{next}}</a>
 
-  <h3>{{repos['items']|count}} of {{repos['total_count']}}</h3>
+  <h3>{{per_page * (page - 1) + repos['items']|count}} of {{repos['total_count']}}</h3>
   <ul>
     # for item in repos['items']
       <li>{{item['stargazers_count']}} - {{item['full_name']}}</li>

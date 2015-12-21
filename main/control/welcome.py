@@ -39,6 +39,51 @@ def welcome():
     )
 
 
+@app.route('/user/')
+def user():
+  user_dbs, user_cursor = model.Account.get_dbs(
+      order='-stars',
+      organization=False,
+      limit=util.param('limit') or config.MAX_DB_LIMIT,
+    )
+  return flask.render_template(
+      'account/list_user.html',
+      title='Users',
+      html_class='account-user',
+      user_dbs=user_dbs,
+    )
+
+
+@app.route('/organization/')
+def organization():
+  organization_dbs, organization_cursor = model.Account.get_dbs(
+      order='-stars',
+      organization=True,
+      limit=util.param('limit') or config.MAX_DB_LIMIT,
+    )
+  return flask.render_template(
+      'account/list_organization.html',
+      title='Organizations',
+      html_class='account-organization',
+      organization_dbs=organization_dbs,
+    )
+
+
+@app.route('/repo/')
+def repo():
+  repo_dbs, repo_cursor = model.Repo.get_dbs(
+      order='-stars',
+      limit=util.param('limit') or config.MAX_DB_LIMIT,
+    )
+
+  return flask.render_template(
+      'account/list_repo.html',
+      title='Repositories',
+      html_class='account-repo',
+      repo_dbs=repo_dbs,
+    )
+
+
 ###############################################################################
 # Sitemap stuff
 ###############################################################################

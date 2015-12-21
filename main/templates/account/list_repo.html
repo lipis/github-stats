@@ -1,0 +1,23 @@
+# extends 'base.html'
+# import 'macro/utils.html' as utils
+
+# block content
+  <div class="row">
+    <div class="col-sm-4">
+      <h2>{{title}}</h2>
+      <table class="table table-striped table-bordered table-hover gh-list">
+        <tbody>
+          # for repo_db in repo_dbs
+            <tr class="row-link" id="{{repo_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=repo_db.account_username)}}">
+              <td class="col-xs-12 ellipsis">
+                <img class="avatar" src="{{repo_db.avatar_url}}?size=48" alt="">
+                {{repo_db.name}} <small class="text-muted">{{repo_db.account_username}}</small>
+              </td>
+              <td class="text-right text-nowrap">{{repo_db.stars_hu}} <span class="fa fa-star"></span></td>
+            </tr>
+          # endfor
+        </tbody>
+      </table>
+    </div>
+  </div>
+# endblock
