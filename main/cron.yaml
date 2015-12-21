@@ -1,8 +1,4 @@
 cron:
-- description: status=new
-  url: /admin/cron/sync/?status=new&limit=32&sync
-  schedule: every 10 minutes
-
 - description: status=synced
   url: /admin/cron/sync/?status=synced&limit=32&sync
   schedule: every 20 minutes
@@ -13,4 +9,8 @@ cron:
 
 - description: status=syncing
   url: /admin/cron/sync/?status=syncing&limit=32&sync
+  schedule: every 1 hours
+
+- description: status=new
+  url: /admin/cron/sync/?status=new&limit=32&sync
   schedule: every 1 hours

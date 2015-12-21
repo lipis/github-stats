@@ -32,11 +32,15 @@ def gh_account(username):
 
     account_db = model.Account.get_or_insert(
         account.login,
-        username=account.login,
-        name=account.name or account.login,
         avatar_url=account.avatar_url.split('?')[0],
+        email=account.email or '',
+        followers=account.followers,
+        following=account.following,
+        joined=account.created_at,
+        name=account.name or account.login,
         organization=account.type == 'Organization',
         public_repos=account.public_repos,
+        username=account.login,
       )
 
   task.queue_account(account_db)
@@ -56,25 +60,30 @@ def gh_account(username):
 @app.route('/admin/top/')
 #TODO: Fix the ugliness
 def gh_admin_top():
-  stars = util.param('stars', int) or 30000
+  stars = util.param('stars', int) or 10000
   page = util.param('page', int) or 1
-  per_page = util.param('per_page', int) or 16
+  per_page = util.param('per_page', int) or 100
   result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&page=%d&per_page=%d' % (stars, page, per_page))
+  # result = urlfetch.fetch('https://api.github.com/search/repositories?q=created:>2015-01-01+stars:>=%s&sort=stars&page=%d&per_page=%d' % (stars, page, per_page))
   if result.status_code == 200:
     repos = json.loads(result.content)
+  else:
+    flask.abort(result.status_code)
 
   for repo in repos['items']:
     account = repo['owner']
     account_db = model.Account.get_or_insert(
         account['login'],
-        username=account['login'],
-        name=account['login'],
         avatar_url=account['avatar_url'].split('?')[0],
+        email=account['email'] or '',
+        name=account['login'],
         organization=account['type'] == 'Organization',
+        username=account['login'],
       )
   return flask.render_template(
       'admin/popular.html',
       title='Top Repositories',
+      html_class='top',
       next=flask.url_for('gh_admin_top', stars=stars, page=page + 1, per_page=per_page),
       repos=repos,
       stars=stars,

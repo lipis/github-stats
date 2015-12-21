@@ -175,9 +175,11 @@ def queue_account(account_db):
   if account_db.status == 'syncing' and delta.seconds > 60 * 5:
     queue_it = True
 
-  if delta.days > 0:
+  if delta.seconds > 60 * 60 * 2:
     queue_it = True
 
+  import logging
+  logging.info('####### %r' % queue_it)
   if queue_it:
     deferred.defer(sync_account, account_db)
 
@@ -190,6 +192,7 @@ def sync_account(account_db):
     account_db.status = 'error'
 
   stars = 0
+  forks = 0
   repo_dbs = []
 
   for repo in account.get_repos():
@@ -200,6 +203,8 @@ def sync_account(account_db):
         name=repo.name,
         description=repo.description,
         stars=repo.stargazers_count,
+        forks=repo.forks_count,
+        language=repo.language or '',
         avatar_url=account_db.avatar_url,
         account_username=account_db.username,
       )
@@ -207,14 +212,20 @@ def sync_account(account_db):
     repo_db.name = repo.name
     repo_db.description = repo.description
     repo_db.stars = repo.stargazers_count
+    repo_db.forks = repo.forks_count
+    repo_db.language = repo.language or ''
 
     stars += repo_db.stars
+    forks += repo_db.forks
+    repo_dbs.append(repo_db)
 
   if repo_dbs:
     ndb.put_multi(repo_dbs)
 
-  account_db.name = account.name or account.login
   account_db.status = 'synced'
+  account_db.name = account.name or account.login
   account_db.stars = stars
+  account_db.forks = forks
+  account_db.email = account.email or ''
   account_db.public_repos = account.public_repos
   account_db.put()

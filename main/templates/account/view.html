@@ -9,17 +9,18 @@
       <p>
         <img class="avatar" src="{{account_db.avatar_url}}?size=512" alt="Avatar of {{account_db.name}}">
       </p>
-      <h2>
+      <h1>
         {{account_db.name}}<br>
         <small>
           <a href="https://github.com/{{account_db.username}}" target="_blank">
             github.com/{{account_db.username}}
           </a>
         </small>
-      </h2>
-      <h4><span class="fa fa-fw fa-star"></span> {{account_db.stars_hu}}</h4>
-      <h4><span class="fa fa-fw fa-code-fork"></span> {{account_db.public_repos}}</h4>
-      <h4>
+      </h1>
+      <h3 title="Stars"><span class="fa fa-fw fa-star"></span> {{account_db.stars_hu}}</h3>
+      <h3 title="Forks"><span class="fa fa-fw fa-code-fork"></span> {{account_db.forks_hu}}</h3>
+      <h3 title="Public Repos"><span class="fa fa-fw fa-github"></span> {{account_db.public_repos_hu}}</h3>
+      <h4 class="text-muted" title="Last Sync / Status">
         <span class="fa fa-fw fa-refresh"></span>
         <time datetime="{{account_db.modified}}">
           {{account_db.modified.strftime('%Y-%m-%d')}}
@@ -34,6 +35,7 @@
             <tr class="row-link {{'lead' if loop.index < 9 and repo_db.stars > 0}}" data-target="_blank" data-href="{{repo_db.url}}">
               <td class="col-xs-12">{{repo_db.name}}</td>
               <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="fa fa-fw fa-star"></span></td>
+              <td class="text-nowrap text-right text-muted small">{{repo_db.forks_hu}} <span class="fa fa-fw fa-code-fork"></span></td>
             </tr>
           # endfor
         </tbody>

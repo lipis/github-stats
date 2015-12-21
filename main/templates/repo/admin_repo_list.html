@@ -6,14 +6,6 @@
 # endblock
 
 # block admin_content
-  <div class="panel panel-default">
-    <div class="panel-body">
-      <a class="btn btn-sm btn-primary" href="{{url_for('admin_repo_update')}}">
-        <span class="fa fa-plus"></span> New Repo
-      </a>
-    </div>
-  </div>
-
   <div class="table-responsive {{'hide' if not repo_dbs|count}}">
     <table class="table table-striped table-bordered table-hover">
       <thead>
@@ -27,7 +19,7 @@
       </thead>
       <tbody>
         # for repo_db in repo_dbs
-          <tr class="row-link" id="{{repo_db.key.urlsafe()}}" data-href="{{url_for('admin_repo_update', repo_id=repo_db.key.id())}}">
+          <tr>
             <td>{{repo_db.name}}</td>
             <td>{{repo_db.description}}</td>
             <td class="text-right">{{repo_db.stars}}</td>

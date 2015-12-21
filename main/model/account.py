@@ -9,18 +9,39 @@ import model
 
 
 class Account(model.Base):
-  username = ndb.StringProperty(required=True)
-  name = ndb.StringProperty(required=True)
-  stars = ndb.IntegerProperty(default=0)
-  rank = ndb.IntegerProperty(default=0)
-  organization = ndb.BooleanProperty(default=False)
-  status = ndb.StringProperty(default='new', choices=['new', 'synced', 'syncing', 'error'])
   avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
+  email = ndb.StringProperty(default='')
+  followers = ndb.IntegerProperty(default=0)
+  following = ndb.IntegerProperty(default=0)
+  forks = ndb.IntegerProperty(default=0)
+  joined = ndb.DateTimeProperty()
+  name = ndb.StringProperty(required=True)
+  organization = ndb.BooleanProperty(default=False)
   public_repos = ndb.IntegerProperty(default=0)
+  rank = ndb.IntegerProperty(default=0)
+  stars = ndb.IntegerProperty(default=0)
+  status = ndb.StringProperty(default='new', choices=['new', 'synced', 'syncing', 'error'])
+  username = ndb.StringProperty(required=True)
 
   @ndb.ComputedProperty
   def stars_hu(self):
     return '{:,}'.format(self.stars)
+
+  @ndb.ComputedProperty
+  def forks_hu(self):
+    return '{:,}'.format(self.forks)
+
+  @ndb.ComputedProperty
+  def followers_hu(self):
+    return '{:,}'.format(self.followers)
+
+  @ndb.ComputedProperty
+  def following_hu(self):
+    return '{:,}'.format(self.following)
+
+  @ndb.ComputedProperty
+  def public_repos_hu(self):
+    return '{:,}'.format(self.public_repos)
 
   def get_repo_dbs(self, **kwargs):
     return model.Repo.get_dbs(
@@ -30,14 +51,19 @@ class Account(model.Base):
       )
 
   FIELDS = {
-      'username': fields.String,
-      'name': fields.String,
-      'stars': fields.Integer,
-      'rank': fields.Integer,
-      'organization': fields.Boolean,
-      'status': fields.String,
       'avatar_url': fields.String,
+      'email': fields.String,
+      'followers': fields.Integer,
+      'following': fields.Integer,
+      'forks': fields.Integer,
+      'joined': fields.DateTime,
+      'name': fields.String,
+      'organization': fields.Boolean,
       'public_repos': fields.Integer,
+      'rank': fields.Integer,
+      'stars': fields.Integer,
+      'status': fields.String,
+      'username': fields.String,
     }
 
   FIELDS.update(model.Base.FIELDS)

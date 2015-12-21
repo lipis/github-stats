@@ -6,22 +6,14 @@
 # endblock
 
 # block admin_content
-  <div class="panel panel-default">
-    <div class="panel-body">
-      <a class="btn btn-sm btn-primary" href="{{url_for('admin_account_update')}}">
-        <span class="fa fa-plus"></span> New Account
-      </a>
-    </div>
-  </div>
-
   <div class="table-responsive {{'hide' if not account_dbs|count}}">
     <table class="table table-striped table-bordered table-hover">
       <thead>
         <tr class="text-nowrap">
           <th class="col-xs-1">{{utils.order_by_link('username', 'Username')}}</th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('stars', 'Stars')}}</th>
-          <th class="col-xs-1">{{utils.order_by_link('status', 'Status')}}</th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('public_repos', 'Public Repos')}}</th>
+          <th class="col-xs-1">{{utils.order_by_link('status', 'Status')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('modified', 'Modified')}}<br><small>{{utils.order_by_link('created', 'Created')}}</small></th>
         </tr>
       </thead>
@@ -29,9 +21,9 @@
         # for account_db in account_dbs
           <tr class="row-link" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
             <td>{{account_db.username}}</td>
-            <td class="text-right">{{account_db.stars}}</td>
+            <td class="text-right">{{account_db.stars_gh}}</td>
+            <td class="text-right">{{account_db.public_repos_gh}}</td>
             <td>{{account_db.status}}</td>
-            <td class="text-right">{{account_db.public_repos}}</td>
             <td>
               <time datetime="{{account_db.modified}}">
                 {{account_db.modified.strftime('%Y-%m-%d')}}
