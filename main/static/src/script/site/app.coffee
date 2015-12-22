@@ -17,3 +17,6 @@ $ -> $('html.user-merge').each ->
 
 $ -> $('html.admin-config').each ->
   init_admin_config()
+
+$ -> $('html.gh-view').each ->
+  init_gh_view()

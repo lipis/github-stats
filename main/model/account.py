@@ -12,7 +12,6 @@ class Account(model.Base):
   avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
   email = ndb.StringProperty(default='')
   followers = ndb.IntegerProperty(default=0)
-  following = ndb.IntegerProperty(default=0)
   forks = ndb.IntegerProperty(default=0)
   joined = ndb.DateTimeProperty()
   name = ndb.StringProperty(required=True)
@@ -36,10 +35,6 @@ class Account(model.Base):
     return '{:,}'.format(self.followers)
 
   @ndb.ComputedProperty
-  def following_hu(self):
-    return '{:,}'.format(self.following)
-
-  @ndb.ComputedProperty
   def public_repos_hu(self):
     return '{:,}'.format(self.public_repos)
 
@@ -54,7 +49,6 @@ class Account(model.Base):
       'avatar_url': fields.String,
       'email': fields.String,
       'followers': fields.Integer,
-      'following': fields.Integer,
       'forks': fields.Integer,
       'joined': fields.DateTime,
       'name': fields.String,

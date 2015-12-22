@@ -1,14 +1,37 @@
 <table class="table table-striped table-bordered table-hover gh-list">
+  # if order
+    <thead>
+      <tr class="text-nowrap">
+        <th class="text-center ">Rank</th>
+        <th class="text-center col-xs-12">Name</th>
+        <th class="text-center ">
+          # if 'star' in order
+            Stars
+          # else
+            <a href="{{url_for('user')}}">Stars</a>
+          # endif
+        </th>
+        <th class="text-center ">
+          # if 'repo' in order
+            Repos
+          # else
+            <a href="{{url_for('user', order='repos')}}">Repos</a>
+          # endif
+        </th>
+        <th class="text-center ">
+          # if 'follower' in order
+            Followers
+          # else
+            <a href="{{url_for('user', order='followers')}}">Followers</a>
+          # endif
+        </th>
+      </tr>
+    </thead>
+  # endif
   <tbody>
     # for account_db in user_dbs
-      <tr class="row-link" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
-        <td class="text-right text-nowrap text-muted">{{loop.index}}.</td>
-        <td class="col-xs-12 ellipsis">
-          <img class="avatar" src="{{account_db.avatar_url}}?size=48" alt="">
-          {{account_db.name}} <small class="text-muted">{{account_db.username}}</small>
-        </td>
-        <td class="text-right text-nowrap">{{account_db.stars_hu}} <span class="fa fa-star"></span></td>
-      </tr>
+      # set index = loop.index
+      # include 'account/item_account_bit.html'
     # endfor
   </tbody>
 </table>

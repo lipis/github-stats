@@ -176,10 +176,10 @@ def queue_account(account_db):
     queue_it = True
 
   if delta.seconds > 60 * 60 * 2:
+    account_db.status = 'syncing'
+    account_db.put()
     queue_it = True
 
-  import logging
-  logging.info('####### %r' % queue_it)
   if queue_it:
     deferred.defer(sync_account, account_db)
 
@@ -226,6 +226,7 @@ def sync_account(account_db):
   account_db.name = account.name or account.login
   account_db.stars = stars
   account_db.forks = forks
+  account_db.followers = account.followers
   account_db.email = account.email or ''
   account_db.public_repos = account.public_repos
   account_db.put()

@@ -41,8 +41,14 @@ def welcome():
 
 @app.route('/user/')
 def user():
+  order = util.param('order') or '-stars'
+  if 'repo' in order:
+    order = '-public_repos'
+  elif 'follower' in order:
+    order = '-followers'
+
   user_dbs, user_cursor = model.Account.get_dbs(
-      order='-stars',
+      order=order,
       organization=False,
       limit=util.param('limit') or config.MAX_DB_LIMIT,
     )
@@ -51,13 +57,18 @@ def user():
       title='Users',
       html_class='account-user',
       user_dbs=user_dbs,
+      order=order,
     )
 
 
 @app.route('/organization/')
 def organization():
+  order = util.param('order') or '-stars'
+  if 'repo' in order:
+    order = '-public_repos'
+
   organization_dbs, organization_cursor = model.Account.get_dbs(
-      order='-stars',
+      order=order,
       organization=True,
       limit=util.param('limit') or config.MAX_DB_LIMIT,
     )
@@ -66,13 +77,17 @@ def organization():
       title='Organizations',
       html_class='account-organization',
       organization_dbs=organization_dbs,
+      order=order,
     )
 
 
 @app.route('/repo/')
 def repo():
+  order = util.param('order') or '-stars'
+  if 'fork' in order:
+    order = '-forks'
   repo_dbs, repo_cursor = model.Repo.get_dbs(
-      order='-stars',
+      order=order,
       limit=util.param('limit') or config.MAX_DB_LIMIT,
     )
 
@@ -81,6 +96,7 @@ def repo():
       title='Repositories',
       html_class='account-repo',
       repo_dbs=repo_dbs,
+      order=order.replace('-', ''),
     )
 
 

@@ -20,13 +20,13 @@ from main import app
 
 @app.route('/<username>')
 def gh_account(username):
-  username = username.lower()
-  account_db = model.Account.get_by_id(username)
+  username_ = username.lower()
+  account_db = model.Account.get_by_id(username_)
 
   if not account_db:
     g = github.Github(config.CONFIG_DB.github_username, config.CONFIG_DB.github_password)
     try:
-      account = g.get_user(username)
+      account = g.get_user(username_)
     except github.GithubException as error:
       return flask.abort(error.status)
 
@@ -35,13 +35,15 @@ def gh_account(username):
         avatar_url=account.avatar_url.split('?')[0],
         email=account.email or '',
         followers=account.followers,
-        following=account.following,
         joined=account.created_at,
         name=account.name or account.login,
         organization=account.type == 'Organization',
         public_repos=account.public_repos,
         username=account.login,
       )
+
+  if account_db.username != username:
+    return flask.redirect(flask.url_for('gh_account', username=account_db.username))
 
   task.queue_account(account_db)
   repo_dbs, repo_cursor = account_db.get_repo_dbs()
@@ -56,15 +58,18 @@ def gh_account(username):
       username=account_db.username,
     )
 
-
-@app.route('/admin/top/')
-#TODO: Fix the ugliness
+###############################################################################
+# Cron Stuff
+###############################################################################
+@app.route('/admin/cron/fetch/')
 def gh_admin_top():
+  if 'X-Appengine-Cron' not in flask.request.headers:
+    flask.abort(403)
   stars = util.param('stars', int) or 10000
   page = util.param('page', int) or 1
   per_page = util.param('per_page', int) or 100
-  result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&page=%d&per_page=%d' % (stars, page, per_page))
-  # result = urlfetch.fetch('https://api.github.com/search/repositories?q=created:>2015-01-01+stars:>=%s&sort=stars&page=%d&per_page=%d' % (stars, page, per_page))
+  # TODO: fix formatting
+  result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&order=asc&page=%d&per_page=%d' % (stars, page, per_page))
   if result.status_code == 200:
     repos = json.loads(result.content)
   else:
@@ -75,21 +80,14 @@ def gh_admin_top():
     account_db = model.Account.get_or_insert(
         account['login'],
         avatar_url=account['avatar_url'].split('?')[0],
-        email=account['email'] or '',
+        email=account['email'] if 'email' in account else '',
         name=account['login'],
+        followers=account['followers'] if 'followers' in account else 0,
         organization=account['type'] == 'Organization',
         username=account['login'],
       )
-  return flask.render_template(
-      'admin/popular.html',
-      title='Top Repositories',
-      html_class='top',
-      next=flask.url_for('gh_admin_top', stars=stars, page=page + 1, per_page=per_page),
-      repos=repos,
-      stars=stars,
-      page=page,
-      per_page=per_page,
-    )
+
+  return 'OK'
 
 
 @app.route('/admin/cron/sync/')
@@ -101,14 +99,7 @@ def admin_cron():
       status=util.param('status'),
     )
 
-  if util.param('sync', bool):
-    for account_db in account_dbs:
-      task.queue_account(account_db)
-    flask.flash('Trying to sync %s accounts' % len(account_dbs))
-  return flask.render_template(
-      'account/admin_account_list.html',
-      html_class='admin-account-list',
-      title='Account List',
-      account_dbs=account_dbs,
-      next_url=util.generate_next_url(account_cursor),
-    )
+  for account_db in account_dbs:
+    task.queue_account(account_db)
+
+  return 'OK'

@@ -20,12 +20,15 @@
       <h3 title="Stars"><span class="fa fa-fw fa-star"></span> {{account_db.stars_hu}}</h3>
       <h3 title="Forks"><span class="fa fa-fw fa-code-fork"></span> {{account_db.forks_hu}}</h3>
       <h3 title="Public Repos"><span class="fa fa-fw fa-github"></span> {{account_db.public_repos_hu}}</h3>
+      # if not account_db.organization
+        <h3 title="Followers"><span class="fa fa-fw fa-users"></span> {{account_db.followers_hu}}</h3>
+      # endif
       <h4 class="text-muted" title="Last Sync / Status">
-        <span class="fa fa-fw fa-refresh"></span>
+        <span class="fa fa-fw fa-refresh {{'fa-spin text-success' if account_db.status == 'syncing'}}"></span>
         <time datetime="{{account_db.modified}}">
           {{account_db.modified.strftime('%Y-%m-%d')}}
         </time>
-        <small>({{account_db.status}})</small>
+        <small id="status" data-status="{{account_db.status}}">({{account_db.status}})</small>
       </h4>
     </div>
     <div class="col-sm-8">
@@ -43,5 +46,4 @@
       {{utils.next_link(next_url, prev_url)}}
     </div>
   </div>
-
 # endblock
