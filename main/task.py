@@ -172,10 +172,12 @@ def queue_account(account_db):
 
   delta = (datetime.utcnow() - account_db.modified)
 
-  if account_db.status == 'syncing' and delta.seconds > 60 * 5:
+  # If the syncing is happening for the last 8 minutes
+  if account_db.status == 'syncing' and account_db.public_repos < 3000 and delta.seconds > 60 * 60:
     queue_it = True
 
-  if delta.seconds > 60 * 60 * 2:
+  # If the data is 4 hours old
+  if delta.seconds > 6 * 60 * 60 and account_db.public_repos < 3000:
     account_db.status = 'syncing'
     account_db.put()
     queue_it = True

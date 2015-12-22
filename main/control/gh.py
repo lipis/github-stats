@@ -87,7 +87,7 @@ def gh_admin_top():
         username=account['login'],
       )
 
-  return 'OK'
+  return 'OK %d' % (len(repos['items']))
 
 
 @app.route('/admin/cron/sync/')

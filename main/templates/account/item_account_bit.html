@@ -6,9 +6,9 @@
   </td>
   <td class="text-right text-nowrap {{'text-muted' if order and 'star' not in order}}">{{account_db.stars_hu}} <span class="text-muted fa fa-star"></span></td>
   # if order
-    <td class="text-right text-nowrap {{'text-muted' if order and 'repo' not in order}}">{{account_db.public_repos_hu}} <span class="text-muted fa fa-github"></span></td>
+    <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'repo' not in order}}">{{account_db.public_repos_hu}} <span class="text-muted fa fa-github"></span></td>
     # if not account_db.organization
-    <td class="text-right text-nowrap {{'text-muted' if order and 'follower' not in order}}">{{account_db.followers_hu}} <span class="text-muted fa fa-users"></span></td>
+    <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'follower' not in order}}">{{account_db.followers_hu}} <span class="text-muted fa fa-users"></span></td>
     # endif
   # endif
 </tr>

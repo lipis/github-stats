@@ -11,14 +11,14 @@
             <a href="{{url_for('user')}}">Stars</a>
           # endif
         </th>
-        <th class="text-center ">
+        <th class="text-center hidden-xs">
           # if 'repo' in order
             Repos
           # else
             <a href="{{url_for('user', order='repos')}}">Repos</a>
           # endif
         </th>
-        <th class="text-center ">
+        <th class="text-center hidden-xs">
           # if 'follower' in order
             Followers
           # else

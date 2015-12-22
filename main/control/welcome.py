@@ -50,7 +50,7 @@ def user():
   user_dbs, user_cursor = model.Account.get_dbs(
       order=order,
       organization=False,
-      limit=util.param('limit') or config.MAX_DB_LIMIT,
+      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
     )
   return flask.render_template(
       'account/list_user.html',
@@ -70,7 +70,7 @@ def organization():
   organization_dbs, organization_cursor = model.Account.get_dbs(
       order=order,
       organization=True,
-      limit=util.param('limit') or config.MAX_DB_LIMIT,
+      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
     )
   return flask.render_template(
       'account/list_organization.html',
@@ -88,7 +88,7 @@ def repo():
     order = '-forks'
   repo_dbs, repo_cursor = model.Repo.get_dbs(
       order=order,
-      limit=util.param('limit') or config.MAX_DB_LIMIT,
+      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
     )
 
   return flask.render_template(
