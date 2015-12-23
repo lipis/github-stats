@@ -13,17 +13,17 @@
           <th class="col-xs-1">{{utils.order_by_link('name', 'Name')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('description', 'Description')}}</th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('stars', 'Stars')}}</th>
-          <th class="col-xs-1">{{utils.order_by_link('account_key', 'Account Key')}}</th>
+          <th class="col-xs-1 text-right">{{utils.order_by_link('forks', 'Forks')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('modified', 'Modified')}}<br><small>{{utils.order_by_link('created', 'Created')}}</small></th>
         </tr>
       </thead>
       <tbody>
         # for repo_db in repo_dbs
           <tr>
-            <td>{{repo_db.name}}</td>
+            <td>{{repo_db.name}}<br><small class="text-muted">{{repo_db.account_username}}</small></td>
             <td>{{repo_db.description}}</td>
-            <td class="text-right">{{repo_db.stars}}</td>
-            <td>{{repo_db.account_key.get().username if repo_db.account_key else ''}}</td>
+            <td class="text-right">{{repo_db.stars_hu}}</td>
+            <td class="text-right">{{repo_db.forks_hu}}</td>
             <td>
               <time datetime="{{repo_db.modified}}">
                 {{repo_db.modified.strftime('%Y-%m-%d')}}

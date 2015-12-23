@@ -12,8 +12,8 @@
     <nav class="collapse navbar-collapse" role="navigation">
       <ul class="nav navbar-nav">
         <li class="{{'active' if 'user' in html_class}}"><a href="{{url_for('user')}}">Users</a></li>
-        <li class="{{'active' if 'organization' in html_class}}"><a href="{{url_for('organization')}}">Orgs</a></li>
-        <li class="{{'active' if 'repo' in html_class}}"><a href="{{url_for('repo')}}">Repos</a></li>
+        <li class="{{'active' if 'organization' in html_class}}"><a href="{{url_for('organization')}}">Organizations</a></li>
+        <li class="{{'active' if 'repo' in html_class}}"><a href="{{url_for('repo')}}">Repositories</a></li>
       </ul>
       <form class="navbar-form navbar-left" role="search" action="{{url_for('welcome')}}" method="GET">
         <div class="form-group">

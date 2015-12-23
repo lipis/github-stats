@@ -19,7 +19,7 @@ class Account(model.Base):
   public_repos = ndb.IntegerProperty(default=0)
   rank = ndb.IntegerProperty(default=0)
   stars = ndb.IntegerProperty(default=0)
-  status = ndb.StringProperty(default='new', choices=['new', 'synced', 'syncing', 'error'])
+  status = ndb.StringProperty(default='new', choices=['new', 'synced', 'syncing', 'error', 'failed'])
   username = ndb.StringProperty(required=True)
 
   @ndb.ComputedProperty

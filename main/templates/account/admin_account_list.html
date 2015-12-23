@@ -7,12 +7,13 @@
 
 # block admin_content
   <div class="table-responsive {{'hide' if not account_dbs|count}}">
-    <table class="table table-striped table-bordered table-hover">
+    <table class="table table-bordered table-hover">
       <thead>
         <tr class="text-nowrap">
-          <th class="col-xs-1">{{utils.order_by_link('username', 'Username')}}</th>
+          <th class="col-xs-1">{{utils.order_by_link('name', 'Name')}} <br> <small>{{utils.order_by_link('username', 'Username')}}</small></th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('stars', 'Stars')}}</th>
-          <th class="col-xs-1 text-right">{{utils.order_by_link('public_repos', 'Public Repos')}}</th>
+          <th class="col-xs-1 text-right">{{utils.order_by_link('public_repos', 'Repos')}}</th>
+          <th class="col-xs-1 text-right">{{utils.order_by_link('followers', 'Followers')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('status', 'Status')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('modified', 'Modified')}}<br><small>{{utils.order_by_link('created', 'Created')}}</small></th>
         </tr>
@@ -20,9 +21,10 @@
       <tbody>
         # for account_db in account_dbs
           <tr class="row-link" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
-            <td>{{account_db.username}}</td>
-            <td class="text-right">{{account_db.stars_gh}}</td>
-            <td class="text-right">{{account_db.public_repos_gh}}</td>
+            <td>{{account_db.name}}<br><small class="text-muted">{{account_db.username}}</small></td>
+            <td class="text-right">{{account_db.stars_hu}}</td>
+            <td class="text-right">{{account_db.public_repos_hu}}</td>
+            <td class="text-right">{{account_db.followers_hu if not account_db.organization else '-'}}</td>
             <td>{{account_db.status}}</td>
             <td>
               <time datetime="{{account_db.modified}}">
