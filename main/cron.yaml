@@ -16,5 +16,5 @@ cron:
   schedule: every 1 hours
 
 - description: fetch > 2000 stars
-  url: /admin/cron/fetch/?stars=2000&page=1
+  url: /admin/cron/repo/?stars=2000&page=1
   schedule: every day 00:00

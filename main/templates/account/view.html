@@ -36,7 +36,9 @@
         <tbody>
           # for repo_db in repo_dbs
             <tr class="row-link {{'lead' if loop.index < 9 and repo_db.stars > 0}}" data-target="_blank" data-href="{{repo_db.url}}">
-              <td class="col-xs-12">{{repo_db.name}}</td>
+              <td class="col-xs-12">
+                <span class="octicon octicon-repo"></span> {{repo_db.name}}
+              </td>
               <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="fa fa-fw fa-star"></span></td>
               <td class="text-nowrap text-right text-muted small">{{repo_db.forks_hu}} <span class="fa fa-fw fa-code-fork"></span></td>
             </tr>

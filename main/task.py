@@ -219,24 +219,26 @@ def sync_account(account_db):
         name=repo.name,
         description=repo.description,
         stars=repo.stargazers_count,
+        fork=repo.fork,
         forks=repo.forks_count,
         language=repo.language or '',
         avatar_url=account_db.avatar_url,
         account_username=account_db.username,
       )
 
-    repo_db.name = repo.name
     repo_db.description = repo.description
-    repo_db.stars = repo.stargazers_count
+    repo_db.fork = repo.fork
     repo_db.forks = repo.forks_count
     repo_db.language = repo.language or ''
+    repo_db.name = repo.name
+    repo_db.stars = repo.stargazers_count
 
     stars += repo_db.stars
     forks += repo_db.forks
     repo_dbs.append(repo_db)
 
   if repo_dbs:
-    ndb.put_multi(repo_dbs)
+    ndb.put_multi_async(repo_dbs)
 
   account_db.status = 'synced'
   account_db.stars = stars

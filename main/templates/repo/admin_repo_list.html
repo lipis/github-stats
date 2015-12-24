@@ -14,6 +14,8 @@
           <th class="col-xs-1">{{utils.order_by_link('description', 'Description')}}</th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('stars', 'Stars')}}</th>
           <th class="col-xs-1 text-right">{{utils.order_by_link('forks', 'Forks')}}</th>
+          <th class="col-xs-1 text-right">{{utils.order_by_link('fork', 'Fork')}}</th>
+          <th class="col-xs-1 text-right">{{utils.order_by_link('language', 'Language')}}</th>
           <th class="col-xs-1">{{utils.order_by_link('modified', 'Modified')}}<br><small>{{utils.order_by_link('created', 'Created')}}</small></th>
         </tr>
       </thead>
@@ -24,6 +26,8 @@
             <td>{{repo_db.description}}</td>
             <td class="text-right">{{repo_db.stars_hu}}</td>
             <td class="text-right">{{repo_db.forks_hu}}</td>
+            <td class="text-right">{{repo_db.fork}}</td>
+            <td class="text-right">{{repo_db.language}}</td>
             <td>
               <time datetime="{{repo_db.modified}}">
                 {{repo_db.modified.strftime('%Y-%m-%d')}}
