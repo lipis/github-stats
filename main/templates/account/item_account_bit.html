@@ -1,4 +1,4 @@
-<tr class="row-link" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
+<tr class="row-link {{'text-danger' if account_db.status in ['failed', 'error']}} {{'text-success' if account_db.status in ['syncing']}}" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
   <td class="text-right text-nowrap text-muted">{{index}}.</td>
   <td class="col-xs-12 ellipsis">
     <img class="avatar" src="{{account_db.avatar_url}}?size=48" alt="">

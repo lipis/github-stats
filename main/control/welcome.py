@@ -41,6 +41,7 @@ def welcome():
 
 @app.route('/user/')
 def user():
+  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'repo' in order:
     order = '-public_repos'
@@ -50,19 +51,24 @@ def user():
   user_dbs, user_cursor = model.Account.get_dbs(
       order=order,
       organization=False,
-      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
+      limit=limit,
     )
-  return flask.render_template(
+
+  response = flask.make_response(flask.render_template(
       'account/list_user.html',
       title='Users',
       html_class='account-user',
       user_dbs=user_dbs,
       order=order,
-    )
+      limit=limit,
+    ))
+  response.set_cookie('limit', str(limit))
+  return response
 
 
 @app.route('/organization/')
 def organization():
+  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'repo' in order:
     order = '-public_repos'
@@ -70,34 +76,42 @@ def organization():
   organization_dbs, organization_cursor = model.Account.get_dbs(
       order=order,
       organization=True,
-      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
+      limit=limit,
     )
-  return flask.render_template(
+
+  response = flask.make_response(flask.render_template(
       'account/list_organization.html',
       title='Organizations',
       html_class='account-organization',
       organization_dbs=organization_dbs,
       order=order,
-    )
+      limit=limit,
+    ))
+  response.set_cookie('limit', str(limit))
+  return response
 
 
 @app.route('/repo/')
 def repo():
+  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'fork' in order:
     order = '-forks'
   repo_dbs, repo_cursor = model.Repo.get_dbs(
       order=order,
-      limit=util.param('limit', int) or config.MAX_DB_LIMIT,
+      limit=limit,
     )
 
-  return flask.render_template(
+  response = flask.make_response(flask.render_template(
       'account/list_repo.html',
       title='Repositories',
       html_class='account-repo',
       repo_dbs=repo_dbs,
       order=order.replace('-', ''),
-    )
+      limit=limit,
+    ))
+  response.set_cookie('limit', str(limit))
+  return response
 
 
 ###############################################################################

@@ -63,7 +63,7 @@ def gh_account(username):
 ###############################################################################
 @app.route('/admin/cron/fetch/')
 def gh_admin_top():
-  if 'X-Appengine-Cron' not in flask.request.headers:
+  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
     flask.abort(403)
   stars = util.param('stars', int) or 10000
   page = util.param('page', int) or 1
@@ -76,7 +76,7 @@ def gh_admin_top():
   else:
     flask.abort(result.status_code)
 
-  for repo in repos['items']:
+  for account in repos['items']:
     account = repo['owner']
     account_db = model.Account.get_or_insert(
         account['login'],
@@ -93,7 +93,7 @@ def gh_admin_top():
 
 @app.route('/admin/cron/sync/')
 def admin_cron():
-  if 'X-Appengine-Cron' not in flask.request.headers:
+  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
     flask.abort(403)
   account_dbs, account_cursor = model.Account.get_dbs(
       order=util.param('order') or 'modified',

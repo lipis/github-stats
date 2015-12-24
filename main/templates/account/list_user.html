@@ -4,8 +4,9 @@
 # block content
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
-      <h2 class="text-center">{{title}}</h2>
+      <h1 class="text-center">{{title}} <small>(top {{limit}})</small> </h1>
       # include 'account/list_user_bit.html'
+      # include 'bit/limit_bar.html'
     </div>
   </div>
 # endblock

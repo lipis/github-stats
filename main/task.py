@@ -47,6 +47,9 @@ def new_user_notification(user_db):
       ''.join([': '.join(('%s\n' % a).split('_')) for a in user_db.auth_ids]),
       flask.url_for('user_update', user_id=user_db.key.id(), _external=True),
     )
+
+  if user_db.github:
+    body += '\n\n%s' % (flask.url_for('gh_account', username=user_db.github, _external=True))
   send_mail_notification('New user: %s' % user_db.name, body)
 
 
@@ -172,17 +175,15 @@ def queue_account(account_db):
 
   delta = (datetime.utcnow() - account_db.modified)
 
-  # If the syncing is happening for the last 8 minutes
-  if account_db.status == 'syncing' and delta.seconds > 30 * 60:
-    queue_it = True
-
-  elif account_db.status == 'syncing' and account_db.public_repos > 5000:
-    account_db.status = 'failed'
-    account_db.put()
-
+  if account_db.status == 'syncing':
+    if delta.seconds > 60 * 60 or account_db.public_repos > 5000:
+      account_db.status = 'failed'
+      account_db.put()
+    elif delta.seconds > 30 * 60:
+      queue_it = True
 
   # If the last sync was a bit old
-  if delta.seconds > 6 * 60 * 60 and account_db.status not in ['failed']:
+  if (delta.seconds > 6 * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
     account_db.status = 'syncing'
     account_db.put()
     queue_it = True
@@ -197,6 +198,14 @@ def sync_account(account_db):
     account = g.get_user(account_db.username)
   except github.GithubException as error:
     account_db.status = 'error'
+    account_db.put()
+    return
+
+  account_db.name = account.name or account.login
+  account_db.followers = account.followers
+  account_db.email = account.email or ''
+  account_db.public_repos = account.public_repos
+  account_db.put()
 
   stars = 0
   forks = 0
@@ -230,10 +239,6 @@ def sync_account(account_db):
     ndb.put_multi(repo_dbs)
 
   account_db.status = 'synced'
-  account_db.name = account.name or account.login
   account_db.stars = stars
   account_db.forks = forks
-  account_db.followers = account.followers
-  account_db.email = account.email or ''
-  account_db.public_repos = account.public_repos
   account_db.put()
