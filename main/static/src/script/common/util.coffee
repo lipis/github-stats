@@ -49,8 +49,8 @@ window.init_announcement = ->
 
 
 window.init_row_link = ->
-  $('body').on 'click', '.row-link', ->
-    if $(this).data 'target'
+  $('body').on 'click', '.row-link', (event) ->
+    if event.ctrlKey or event.metaKey or $(this).data 'target'
       window.open $(this).data 'href'
     else
       window.location.href = $(this).data 'href'
