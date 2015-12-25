@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+from datetime import timedelta
 import json
 
 import flask
@@ -9,6 +10,7 @@ from google.appengine.ext import deferred
 from google.appengine.api import urlfetch
 import github
 
+from api import helpers
 import auth
 import config
 import model
@@ -103,4 +105,12 @@ def admin_cron():
   for account_db in account_dbs:
     task.queue_account(account_db)
 
+  return 'OK'
+
+
+@app.route('/admin/cron/repo/cleanup/')
+def admin_repo_cleanup():
+  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
+    flask.abort(403)
+  task.queue_repo_cleanup(util.param('days', int) or 5)
   return 'OK'

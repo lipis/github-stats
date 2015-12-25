@@ -16,7 +16,7 @@ from main import app
 def welcome():
   if util.param('username'):
     return flask.redirect(flask.url_for('gh_account', username=util.param('username')))
-  user_dbs, user_cursor = model.Account.get_dbs(
+  person_dbs, person_cursor = model.Account.get_dbs(
       order='-stars',
       organization=False,
     )
@@ -33,14 +33,14 @@ def welcome():
   return flask.render_template(
       'welcome.html',
       html_class='welcome',
-      user_dbs=user_dbs,
+      person_dbs=person_dbs,
       organization_dbs=organization_dbs,
       repo_dbs=repo_dbs,
     )
 
 
-@app.route('/user/')
-def user():
+@app.route('/people/')
+def person():
   limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'repo' in order:
@@ -48,17 +48,17 @@ def user():
   elif 'follower' in order:
     order = '-followers'
 
-  user_dbs, user_cursor = model.Account.get_dbs(
+  person_dbs, person_cursor = model.Account.get_dbs(
       order=order,
       organization=False,
       limit=limit,
     )
 
   response = flask.make_response(flask.render_template(
-      'account/list_user.html',
-      title='Users',
-      html_class='account-user',
-      user_dbs=user_dbs,
+      'account/list_person.html',
+      title='People',
+      html_class='account-person',
+      person_dbs=person_dbs,
       order=order,
       limit=limit,
     ))
@@ -66,7 +66,7 @@ def user():
   return response
 
 
-@app.route('/organization/')
+@app.route('/organizations/')
 def organization():
   limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
@@ -91,7 +91,7 @@ def organization():
   return response
 
 
-@app.route('/repo/')
+@app.route('/repositories/')
 def repo():
   limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'

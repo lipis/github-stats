@@ -4,7 +4,7 @@
   <url>
     <loc>{{url_for('welcome', _external=True)}}</loc>
     <lastmod>{{lastmod}}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -14,9 +14,21 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>{{url_for('signin', _external=True)}}</loc>
+    <loc>{{url_for('person', _external=True)}}</loc>
     <lastmod>{{lastmod}}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>{{url_for('organization', _external=True)}}</loc>
+    <lastmod>{{lastmod}}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>{{url_for('repo', _external=True)}}</loc>
+    <lastmod>{{lastmod}}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

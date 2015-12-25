@@ -8,28 +8,28 @@
           # if 'star' in order
             Stars
           # else
-            <a href="{{url_for('user')}}">Stars</a>
+            <a href="{{url_for('person')}}">Stars</a>
           # endif
         </th>
         <th class="text-center hidden-xs">
           # if 'repo' in order
             Repos
           # else
-            <a href="{{url_for('user', order='repos')}}">Repos</a>
+            <a href="{{url_for('person', order='repos')}}">Repos</a>
           # endif
         </th>
         <th class="text-center hidden-xs">
           # if 'follower' in order
             Followers
           # else
-            <a href="{{url_for('user', order='followers')}}">Followers</a>
+            <a href="{{url_for('person', order='followers')}}">Followers</a>
           # endif
         </th>
       </tr>
     </thead>
   # endif
   <tbody>
-    # for account_db in user_dbs
+    # for account_db in person_dbs
       # set index = loop.index
       # include 'account/item_account_bit.html'
     # endfor

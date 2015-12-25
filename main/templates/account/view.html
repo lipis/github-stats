@@ -17,12 +17,18 @@
           </a>
         </small>
       </h1>
-      <h3 title="Stars"><span class="fa fa-fw fa-star"></span> {{account_db.stars_hu}}</h3>
-      <h3 title="Forks"><span class="fa fa-fw fa-code-fork"></span> {{account_db.forks_hu}}</h3>
-      <h3 title="Public Repos"><span class="fa fa-fw fa-github"></span> {{account_db.public_repos_hu}}</h3>
+      <hr>
+      <h3 title="Stars"><span class="fa-fw octicon octicon-star"></span> {{account_db.stars_hu}}</h3>
+      <h3 title="Forks"><span class="fa-fw octicon octicon-repo-forked"></span> {{account_db.forks_hu}}</h3>
+      <h3 title="Public Repos"><span class="fa-fw octicon octicon-repo"></span> {{account_db.public_repos_hu}}</h3>
       # if not account_db.organization
         <h3 title="Followers"><span class="fa fa-fw fa-users"></span> {{account_db.followers_hu}}</h3>
       # endif
+      # if account_db.joined
+        <hr>
+        <h4 title="Joined"><span class="fa-fw octicon octicon-clock "></span> {{account_db.joined.strftime('%b %d, %Y')}}</h4>
+      # endif
+      <hr>
       <h4 class="text-muted" title="Last Sync / Status">
         <span class="fa fa-fw fa-refresh {{'fa-spin text-success' if account_db.status == 'syncing'}}"></span>
         <time datetime="{{account_db.modified}}">
@@ -37,10 +43,12 @@
           # for repo_db in repo_dbs
             <tr class="row-link {{'lead' if loop.index < 9 and repo_db.stars > 0}}" data-target="_blank" data-href="{{repo_db.url}}">
               <td class="col-xs-12">
-                <span class="octicon octicon-repo"></span> {{repo_db.name}}
+                <span class="octicon {{'octicon-repo-forked' if repo_db.fork else 'octicon-repo'}}"></span>
+                {{repo_db.name}}
               </td>
-              <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="fa fa-fw fa-star"></span></td>
-              <td class="text-nowrap text-right text-muted small">{{repo_db.forks_hu}} <span class="fa fa-fw fa-code-fork"></span></td>
+              <td class="text-nowrap">{{repo_db.language}}</td>
+              <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="octicon octicon-star"></span></td>
+              <td class="text-nowrap text-right text-muted small">{{repo_db.forks_hu}} <span class="octicon octicon-repo-forked"></span></td>
             </tr>
           # endfor
         </tbody>

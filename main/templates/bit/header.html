@@ -11,11 +11,11 @@
     </div>
     <nav class="collapse navbar-collapse" role="navigation">
       <ul class="nav navbar-nav">
-        <li class="{{'active' if 'user' in html_class}}"><a href="{{url_for('user')}}">Users</a></li>
-        <li class="{{'active' if 'organization' in html_class}}"><a href="{{url_for('organization')}}">Organizations</a></li>
-        <li class="{{'active' if 'repo' in html_class}}"><a href="{{url_for('repo')}}">Repositories</a></li>
+        <li class="{{'active' if 'person' in html_class}}"><a href="{{url_for('person')}}"><span class="octicon octicon-person"></span> People</a></li>
+        <li class="{{'active' if 'organization' in html_class}}"><a href="{{url_for('organization')}}"><span class="octicon octicon-organization"></span> Organizations</a></li>
+        <li class="{{'active' if 'repo' in html_class}}"><a href="{{url_for('repo')}}"><span class="octicon octicon-repo"></span> Repositories</a></li>
       </ul>
-      <form class="navbar-form navbar-left" role="search" action="{{url_for('welcome')}}" method="GET">
+      <form class="navbar-form navbar-left hidden-sm" role="search" action="{{url_for('welcome')}}" method="GET">
         <div class="form-group">
           <input type="text" class="form-control" name="username" placeholder="GitHub Username" value="{{username or ''}}" autofocus >
         </div>

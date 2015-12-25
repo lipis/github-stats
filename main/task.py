@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+from datetime import timedelta
 import logging
 
 from google.appengine.api import mail
@@ -176,7 +177,7 @@ def queue_account(account_db):
   delta = (datetime.utcnow() - account_db.modified)
 
   if account_db.status == 'syncing':
-    if delta.seconds > 60 * 60 or account_db.public_repos > 5000:
+    if delta.seconds > 60 * 60 or account_db.public_repos > 3000:
       account_db.status = 'failed'
       account_db.put()
     elif delta.seconds > 30 * 60:
@@ -205,6 +206,8 @@ def sync_account(account_db):
   account_db.followers = account.followers
   account_db.email = account.email or ''
   account_db.public_repos = account.public_repos
+  account_db.joined = account.created_at
+  account_db.organization = account.type == 'Organization'
   account_db.put()
 
   stars = 0
@@ -244,3 +247,25 @@ def sync_account(account_db):
   account_db.stars = stars
   account_db.forks = forks
   account_db.put()
+
+
+###############################################################################
+# Repo Clean-ups
+###############################################################################
+def queue_repo_cleanup(days=5):
+  deferred.defer(repo_cleanup, days)
+
+
+def repo_cleanup(days, cursor=None):
+  before_date = datetime.utcnow() - timedelta(days=days)
+  repo_qry = model.Repo.query().filter(model.Repo.modified < before_date)
+  repo_keys, repo_cursors = util.get_dbs(
+      repo_qry,
+      order='modified',
+      keys_only=True,
+      cursor=cursor,
+    )
+
+  ndb.delete_multi(repo_keys)
+  if repo_cursors['next']:
+    deferred.defer(repo_cleanup, days, repo_cursors['next'])
