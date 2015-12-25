@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import operator
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -168,16 +169,22 @@ def email_conflict_notification(email):
 # GH Tasks
 ###############################################################################
 def queue_account(account_db):
+  max_repos = 3000
   queue_it = False
+  delta = (datetime.utcnow() - account_db.modified)
+
   if account_db.status in ['new', 'error']:
     account_db.status = 'syncing'
     account_db.put()
     queue_it = True
 
-  delta = (datetime.utcnow() - account_db.modified)
+  elif delta.days > 0 and account_db.status == 'failed' and account_db.public_repos < max_repos:
+    account_db.status = 'syncing'
+    account_db.put()
+    queue_it = True
 
-  if account_db.status == 'syncing':
-    if delta.seconds > 60 * 60 or account_db.public_repos > 3000:
+  elif account_db.status == 'syncing':
+    if delta.seconds > 60 * 60 or account_db.public_repos > max_repos:
       account_db.status = 'failed'
       account_db.put()
     elif delta.seconds > 30 * 60:
@@ -185,6 +192,12 @@ def queue_account(account_db):
 
   # If the last sync was a bit old
   if (delta.seconds > 6 * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
+    account_db.status = 'syncing'
+    account_db.put()
+    queue_it = True
+
+  # TODO: remove it and set the language default to '' in the Account model
+  if account_db.language is None and account_db.status != 'failed':
     account_db.status = 'syncing'
     account_db.put()
     queue_it = True
@@ -213,14 +226,17 @@ def sync_account(account_db):
   stars = 0
   forks = 0
   repo_dbs = []
+  languages = {}
 
   for repo in account.get_repos():
     name = repo.name.lower()
+    if name in config.ILLEGAL_KEYS:
+      name = 'gh-%s' % name
     repo_db = model.Repo.get_or_insert(
         name,
         parent=account_db.key,
         name=repo.name,
-        description=repo.description,
+        description=repo.description[:500] if repo.description else '',
         stars=repo.stargazers_count,
         fork=repo.fork,
         forks=repo.forks_count,
@@ -229,7 +245,7 @@ def sync_account(account_db):
         account_username=account_db.username,
       )
 
-    repo_db.description = repo.description
+    repo_db.description = repo.description[:500] if repo.description else ''
     repo_db.fork = repo.fork
     repo_db.forks = repo.forks_count
     repo_db.language = repo.language or ''
@@ -240,8 +256,20 @@ def sync_account(account_db):
     forks += repo_db.forks
     repo_dbs.append(repo_db)
 
+    if repo_db.language:
+      if repo_db.language not in languages:
+        languages[repo_db.language] = repo_db.stars + 1
+      else:
+        languages[repo_db.language] += repo_db.stars + 1
+
+
   if repo_dbs:
     ndb.put_multi_async(repo_dbs)
+
+  if languages:
+    account_db.language = max(languages.iteritems(), key=operator.itemgetter(1))[0]
+  else:
+    account_db.language = ''
 
   account_db.status = 'synced'
   account_db.stars = stars

@@ -10,8 +10,8 @@ import model
 
 class Repo(model.Base):
   account_username = ndb.StringProperty(required=True)
-  avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
-  description = ndb.StringProperty(default='')
+  avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL', indexed=False)
+  description = ndb.StringProperty(default='', indexed=False)
   fork = ndb.BooleanProperty(default=False)
   forks = ndb.IntegerProperty(default=0)
   language = ndb.StringProperty(default='')

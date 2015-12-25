@@ -9,7 +9,7 @@ import model
 
 
 class Account(model.Base):
-  avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL')
+  avatar_url = ndb.StringProperty(required=True, verbose_name=u'Avatar URL', indexed=False)
   email = ndb.StringProperty(default='')
   followers = ndb.IntegerProperty(default=0)
   forks = ndb.IntegerProperty(default=0)
@@ -21,6 +21,7 @@ class Account(model.Base):
   stars = ndb.IntegerProperty(default=0)
   status = ndb.StringProperty(default='new', choices=['new', 'synced', 'syncing', 'error', 'failed'])
   username = ndb.StringProperty(required=True)
+  language = ndb.StringProperty()
 
   @ndb.ComputedProperty
   def stars_hu(self):

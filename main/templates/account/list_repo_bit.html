@@ -20,6 +20,7 @@
             <a href="{{url_for('repo', order='forks')}}">Forks</a>
           # endif
         </th>
+        <th class="text-center hidden-xs">Language</th>
       </tr>
     </thead>
   # endif
@@ -34,6 +35,7 @@
         <td class="text-right text-nowrap {{'text-muted' if order and 'star' not in order}}">{{repo_db.stars_hu}} <span class="text-muted octicon octicon-star"></span></td>
         # if order
           <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'fork' not in order}}">{{repo_db.forks_hu}} <span class="text-muted octicon octicon-repo-forked"></span></td>
+          <td class="text-nowrap text-muted hidden-xs">{{repo_db.language}}</td>
         # endif
       </tr>
     # endfor

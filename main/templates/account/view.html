@@ -24,6 +24,9 @@
       # if not account_db.organization
         <h3 title="Followers"><span class="fa fa-fw fa-users"></span> {{account_db.followers_hu}}</h3>
       # endif
+      # if account_db.language
+        <h3 title="Language"><span class="fa-fw octicon octicon-file-code"></span> {{account_db.language}}</h3>
+      # endif
       # if account_db.joined
         <hr>
         <h4 title="Joined"><span class="fa-fw octicon octicon-clock "></span> {{account_db.joined.strftime('%b %d, %Y')}}</h4>
@@ -46,9 +49,9 @@
                 <span class="octicon {{'octicon-repo-forked' if repo_db.fork else 'octicon-repo'}}"></span>
                 {{repo_db.name}}
               </td>
-              <td class="text-nowrap">{{repo_db.language}}</td>
               <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="octicon octicon-star"></span></td>
-              <td class="text-nowrap text-right text-muted small">{{repo_db.forks_hu}} <span class="octicon octicon-repo-forked"></span></td>
+              <td class="text-nowrap text-right text-muted">{{repo_db.forks_hu}} <span class="octicon octicon-repo-forked"></span></td>
+              <td class="text-nowrap text-muted">{{repo_db.language}}</td>
             </tr>
           # endfor
         </tbody>

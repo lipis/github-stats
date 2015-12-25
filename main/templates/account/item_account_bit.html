@@ -8,7 +8,8 @@
   # if order
     <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'repo' not in order}}">{{account_db.public_repos_hu}} <span class="text-muted octicon octicon-repo"></span></td>
     # if not account_db.organization
-    <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'follower' not in order}}">{{account_db.followers_hu}} <span class="text-muted fa fa-users"></span></td>
+      <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'follower' not in order}}">{{account_db.followers_hu}} <span class="text-muted fa fa-users"></span></td>
     # endif
+    <td class="text-nowrap text-muted hidden-xs">{{account_db.language or ''}}</td>
   # endif
 </tr>
