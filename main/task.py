@@ -262,7 +262,6 @@ def sync_account(account_db):
       else:
         languages[repo_db.language] += repo_db.stars + 1
 
-
   if repo_dbs:
     ndb.put_multi_async(repo_dbs)
 
