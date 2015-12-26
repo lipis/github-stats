@@ -196,12 +196,6 @@ def queue_account(account_db):
     account_db.put()
     queue_it = True
 
-  # TODO: remove it and set the language default to '' in the Account model
-  if account_db.language is None and account_db.status != 'failed':
-    account_db.status = 'syncing'
-    account_db.put()
-    queue_it = True
-
   if queue_it:
     deferred.defer(sync_account, account_db)
 
@@ -256,7 +250,7 @@ def sync_account(account_db):
     forks += repo_db.forks
     repo_dbs.append(repo_db)
 
-    if repo_db.language:
+    if repo_db.language and not repo_db.fork:
       if repo_db.language not in languages:
         languages[repo_db.language] = repo_db.stars + 1
       else:
@@ -265,11 +259,7 @@ def sync_account(account_db):
   if repo_dbs:
     ndb.put_multi_async(repo_dbs)
 
-  if languages:
-    account_db.language = max(languages.iteritems(), key=operator.itemgetter(1))[0]
-  else:
-    account_db.language = ''
-
+  account_db.language = max(languages.iteritems(), key=operator.itemgetter(1))[0] if languages else ''
   account_db.status = 'synced'
   account_db.stars = stars
   account_db.forks = forks
