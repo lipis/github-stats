@@ -33,6 +33,7 @@ def welcome():
   return flask.render_template(
       'welcome.html',
       html_class='welcome',
+      title='Top People, Organizations and Repositories',
       person_dbs=person_dbs,
       organization_dbs=organization_dbs,
       repo_dbs=repo_dbs,
@@ -56,7 +57,7 @@ def person():
 
   response = flask.make_response(flask.render_template(
       'account/list_person.html',
-      title='People',
+      title='Top People',
       html_class='account-person',
       person_dbs=person_dbs,
       order=order,
@@ -81,7 +82,7 @@ def organization():
 
   response = flask.make_response(flask.render_template(
       'account/list_organization.html',
-      title='Organizations',
+      title='Top Organizations',
       html_class='account-organization',
       organization_dbs=organization_dbs,
       order=order,
@@ -104,7 +105,7 @@ def repo():
 
   response = flask.make_response(flask.render_template(
       'account/list_repo.html',
-      title='Repositories',
+      title='Top Repositories',
       html_class='account-repo',
       repo_dbs=repo_dbs,
       order=order.replace('-', ''),

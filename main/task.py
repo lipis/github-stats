@@ -169,6 +169,9 @@ def email_conflict_notification(email):
 # GH Tasks
 ###############################################################################
 def queue_account(account_db):
+  if account_db.status in ['404']:
+    return
+
   max_repos = 3000
   queue_it = False
   delta = (datetime.utcnow() - account_db.modified)
@@ -190,8 +193,10 @@ def queue_account(account_db):
     elif delta.seconds > 30 * 60:
       queue_it = True
 
+  # TODO: Remove that when Sindre will hit 100K
+  hours = 6 if account_db.stars < 98000 else 1
   # If the last sync was a bit old
-  if (delta.seconds > 6 * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
+  if (delta.seconds > hours * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
     account_db.status = 'syncing'
     account_db.put()
     queue_it = True
@@ -206,6 +211,8 @@ def sync_account(account_db):
     account = g.get_user(account_db.username)
   except github.GithubException as error:
     account_db.status = 'error'
+    if error.status in [404]:
+      account_db.status = str(error.status)
     account_db.put()
     return
 

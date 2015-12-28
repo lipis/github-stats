@@ -40,6 +40,5 @@ MAX_DB_LIMIT = 256
 SIGNIN_RETRY_LIMIT = 4
 TAG_SEPARATOR = ' '
 
-ILLEGAL_KEYS = [
-    '__settings__',
-  ]
+ILLEGAL_KEYS = ['__settings__']
+ERRORS = ['failed', 'error', '404']

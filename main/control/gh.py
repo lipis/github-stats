@@ -20,8 +20,9 @@ import task
 from main import app
 
 
+@app.route('/<username>/<path:repo>')
 @app.route('/<username>')
-def gh_account(username):
+def gh_account(username, repo=None):
   username_ = username.lower()
   account_db = model.Account.get_by_id(username_)
 
@@ -44,7 +45,7 @@ def gh_account(username):
         username=account.login,
       )
 
-  if account_db.username != username:
+  if account_db.username != username or repo:
     return flask.redirect(flask.url_for('gh_account', username=account_db.username))
 
   task.queue_account(account_db)

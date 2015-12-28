@@ -9,18 +9,15 @@
       <p>
         <img class="avatar" src="{{account_db.avatar_url}}?size=512" alt="Avatar of {{account_db.name}}">
       </p>
-      <h1>
-        {{account_db.name}}<br>
-        <small>
-          <a href="https://github.com/{{account_db.username}}" target="_blank">
-            github.com/{{account_db.username}}
-          </a>
-        </small>
-      </h1>
+      <h1>{{account_db.name}}</h1>
+      <h3 class="ellipsis">
+        <a href="https://github.com/{{account_db.username}}" target="_blank">
+          github.com/{{account_db.username}}
+        </a>
+      </h3>
       <hr>
       <h3 title="Stars"><span class="fa-fw octicon octicon-star"></span> {{account_db.stars_hu}}</h3>
       <h3 title="Forks"><span class="fa-fw octicon octicon-repo-forked"></span> {{account_db.forks_hu}}</h3>
-      <h3 title="Public Repos"><span class="fa-fw octicon octicon-repo"></span> {{account_db.public_repos_hu}}</h3>
       # if not account_db.organization
         <h3 title="Followers"><span class="fa fa-fw fa-users"></span> {{account_db.followers_hu}}</h3>
       # endif
@@ -42,10 +39,17 @@
     </div>
     <div class="col-sm-8">
       <table class="table table-striped table-bordered table-hover">
+        <thead>
+          <tr>
+            <th class="text-center h3" colspan="4">
+              {{account_db.public_repos_hu}} Repositories
+            </th>
+          </tr>
+        </thead>
         <tbody>
           # for repo_db in repo_dbs
             <tr class="row-link {{'lead' if loop.index < 9 and repo_db.stars > 0}}" data-target="_blank" data-href="{{repo_db.url}}">
-              <td class="col-xs-12">
+              <td class="col-xs-12 ellipsis">
                 <span class="octicon {{'octicon-repo-forked' if repo_db.fork else 'octicon-repo'}}"></span>
                 {{repo_db.name}}
               </td>
