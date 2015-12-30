@@ -73,7 +73,6 @@ def gh_admin_top():
   per_page = util.param('per_page', int) or 100
   # TODO: fix formatting
   result = urlfetch.fetch('https://api.github.com/search/repositories?q=stars:>=%s&sort=stars&order=asc&page=%d&per_page=%d' % (stars, page, per_page))
-  # result = urlfetch.fetch('https://api.github.com/search/users?q=repos:>=%s&sort=repos&order=asc&page=%d&per_page=%d' % (stars, page, per_page))
   if result.status_code == 200:
     repos = json.loads(result.content)
   else:
@@ -91,7 +90,7 @@ def gh_admin_top():
         username=account['login'],
       )
 
-  return 'OK %d' % (len(repos['items']))
+  return 'OK %d of %d' % (len(repos['items']), repos['total_count'])
 
 
 @app.route('/admin/cron/sync/')

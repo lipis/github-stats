@@ -194,7 +194,7 @@ def queue_account(account_db):
       queue_it = True
 
   # TODO: Remove that when Sindre will hit 100K
-  hours = 6 if account_db.stars < 98000 else 1
+  hours = 1 if account_db.stars > 98000 and not account_db.organization else 6
   # If the last sync was a bit old
   if (delta.seconds > hours * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
     account_db.status = 'syncing'

@@ -19,6 +19,10 @@ cron:
   url: /admin/cron/repo/?stars=2000&page=1
   schedule: every day 00:00
 
+- description: fetch > 2000 stars
+  url: /admin/cron/repo/?stars=2000&page=2
+  schedule: every day 00:01
+
 - description: cleanup
   url: /admin/cron/repo/cleanup/?days=4
   schedule: every day 01:00
