@@ -17,11 +17,11 @@ cron:
 
 - description: fetch > 2000 stars
   url: /admin/cron/repo/?stars=2000&page=1
-  schedule: every 6 hours
+  schedule: every 4 hours
 
 - description: fetch > 2000 stars
   url: /admin/cron/repo/?stars=2000&page=2
-  schedule: every 6 hours
+  schedule: every 4 hours
 
 - description: cleanup
   url: /admin/cron/repo/cleanup/?days=4
