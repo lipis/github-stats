@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from datetime import datetime
+from google.appengine.ext import ndb
 import flask
 
 import config
@@ -38,6 +40,21 @@ def welcome():
       organization_dbs=organization_dbs,
       repo_dbs=repo_dbs,
     )
+
+
+@app.route('/new/')
+def new_accounts():
+  person_dbs, person_cursor = model.Account.get_dbs(
+    order='-created',
+    limit=128,
+  )
+
+  return flask.make_response(flask.render_template(
+    'account/list_new.html',
+    title='Latest Additions',
+    html_class='account-new',
+    person_dbs=person_dbs,
+  ))
 
 
 @app.route('/people/')

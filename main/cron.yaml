@@ -1,7 +1,7 @@
 cron:
 - description: status=synced
   url: /admin/cron/sync/?status=synced&limit=32
-  schedule: every 20 minutes
+  schedule: every 10 minutes
 
 - description: status=error
   url: /admin/cron/sync/?status=error&limit=32
