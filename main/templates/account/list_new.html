@@ -1,0 +1,30 @@
+# extends 'base.html'
+# import 'macro/utils.html' as utils
+
+# block content
+  <div class="row">
+    <div class="col-md-10 col-md-offset-1">
+      <h1 class="text-center">{{title}}</h1>
+        <table class="table table-striped table-bordered table-hover gh-list">
+          <tbody>
+            # for account_db in person_dbs if account_db.stars > 2000
+              # set index = loop.index
+              <tr class="row-link {{'text-danger' if account_db.status in config.ERRORS}} {{'text-success' if account_db.status in ['syncing']}}" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
+                <td class="text-right text-nowrap text-muted">{{index}}.</td>
+                <td class="col-xs-12 ellipsis">
+                  <img class="avatar" src="{{account_db.avatar_url}}?size=48" alt="">
+                  {{account_db.name}} <small class="text-muted">{{account_db.username}}</small>
+                </td>
+                <td class="text-right text-nowrap">{{account_db.stars_hu}} <span class="text-muted octicon octicon-star"></span></td>
+                <td class="text-nowrap">
+                  <time class="text-muted" datetime="{{account_db.created}}">
+                    {{account_db.created.strftime('%Y-%m-%d')}}
+                  </time>
+                </td>
+              </tr>
+            # endfor
+          </tbody>
+        </table>
+    </div>
+  </div>
+# endblock
