@@ -9,7 +9,7 @@ cron:
 
 - description: status=syncing
   url: /admin/cron/sync/?status=syncing&limit=32
-  schedule: every 2 hours
+  schedule: every 4 hours
 
 - description: status=new
   url: /admin/cron/sync/?status=new&limit=32
