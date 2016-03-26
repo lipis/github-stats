@@ -27,12 +27,12 @@ def send_mail_notification(subject, body, to=None, **kwargs):
   subject = '[%s] %s' % (brand_name, subject)
   if config.DEVELOPMENT:
     logging.info(
-        '\n'
-        '######### Deferring to send this email: #############################'
-        '\nFrom: %s\nTo: %s\nSubject: %s\n\n%s\n'
-        '#####################################################################'
-        % (sender, to or sender, subject, body)
-      )
+      '\n'
+      '######### Deferring to send this email: #############################'
+      '\nFrom: %s\nTo: %s\nSubject: %s\n\n%s\n'
+      '#####################################################################'
+      % (sender, to or sender, subject, body)
+    )
   deferred.defer(mail.send_mail, sender, to or sender, subject, body, **kwargs)
 
 
@@ -43,12 +43,12 @@ def new_user_notification(user_db):
   if not config.CONFIG_DB.notify_on_new_user:
     return
   body = 'name: %s\nusername: %s\nemail: %s\n%s\n%s' % (
-      user_db.name,
-      user_db.username,
-      user_db.email,
-      ''.join([': '.join(('%s\n' % a).split('_')) for a in user_db.auth_ids]),
-      flask.url_for('user_update', user_id=user_db.key.id(), _external=True),
-    )
+    user_db.name,
+    user_db.username,
+    user_db.email,
+    ''.join([': '.join(('%s\n' % a).split('_')) for a in user_db.auth_ids]),
+    flask.url_for('user_update', user_id=user_db.key.id(), _external=True),
+  )
 
   if user_db.github:
     body += '\n\n%s' % (flask.url_for('gh_account', username=user_db.github, _external=True))
@@ -79,15 +79,15 @@ so we can take a look.
 Best regards,
 %(brand)s
 ''' % {
-      'name': user_db.name,
-      'link': flask.url_for('user_verify', token=user_db.token, _external=True),
-      'brand': config.CONFIG_DB.brand_name,
-    }
+    'name': user_db.name,
+    'link': flask.url_for('user_verify', token=user_db.token, _external=True),
+    'brand': config.CONFIG_DB.brand_name,
+  }
 
   flask.flash(
-      'A verification link has been sent to your email address.',
-      category='success',
-    )
+    'A verification link has been sent to your email address.',
+    category='success',
+  )
   send_mail_notification('Verify your email.', body, to)
 
 
@@ -112,15 +112,15 @@ so we can take a look.
 Best regards,
 %(brand)s
 ''' % {
-      'name': user_db.name,
-      'link': flask.url_for('user_reset', token=user_db.token, _external=True),
-      'brand': config.CONFIG_DB.brand_name,
-    }
+    'name': user_db.name,
+    'link': flask.url_for('user_reset', token=user_db.token, _external=True),
+    'brand': config.CONFIG_DB.brand_name,
+  }
 
   flask.flash(
-      'A reset link has been sent to your email address.',
-      category='success',
-    )
+    'A reset link has been sent to your email address.',
+    category='success',
+  )
   send_mail_notification('Reset your password', body, to)
 
 
@@ -143,14 +143,14 @@ so we can take a look.
 Best regards,
 %(brand)s
 ''' % {
-      'link': flask.url_for('user_activate', token=user_db.token, _external=True),
-      'brand': config.CONFIG_DB.brand_name,
-    }
+    'link': flask.url_for('user_activate', token=user_db.token, _external=True),
+    'brand': config.CONFIG_DB.brand_name,
+  }
 
   flask.flash(
-      'An activation link has been sent to your email address.',
-      category='success',
-    )
+    'An activation link has been sent to your email address.',
+    category='success',
+  )
   send_mail_notification('Activate your account', body, to)
 
 
@@ -159,9 +159,9 @@ Best regards,
 ###############################################################################
 def email_conflict_notification(email):
   body = 'There is a conflict with %s\n\n%s' % (
-      email,
-      flask.url_for('user_list', email=email, _external=True),
-    )
+    email,
+    flask.url_for('user_list', email=email, _external=True),
+  )
   send_mail_notification('Conflict with: %s' % email, body)
 
 

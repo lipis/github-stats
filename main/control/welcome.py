@@ -138,9 +138,9 @@ def repo():
 @app.route('/sitemap.xml')
 def sitemap():
   response = flask.make_response(flask.render_template(
-      'sitemap.xml',
-      lastmod=config.CURRENT_VERSION_DATE.strftime('%Y-%m-%d'),
-    ))
+    'sitemap.xml',
+    lastmod=config.CURRENT_VERSION_DATE.strftime('%Y-%m-%d'),
+  ))
   response.headers['Content-Type'] = 'application/xml'
   return response
 
