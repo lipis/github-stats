@@ -220,6 +220,7 @@ def sync_account(account_db):
   account_db.public_repos = account.public_repos
   account_db.joined = account.created_at
   account_db.organization = account.type == 'Organization'
+  account_db.avatar_url = account.avatar_url.split('?')[0]
   account_db.put()
 
   stars = 0
