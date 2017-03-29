@@ -16,6 +16,8 @@ config =
   ]
   script: [
     "#{paths.src.script}/**/*.coffee"
+    "#{paths.src.script}/**/*.js"
   ]
+
 
 module.exports = config

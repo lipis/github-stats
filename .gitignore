@@ -1,10 +1,9 @@
-
-
 *.pyc
 *.pyo
 .DS_Store
 .git*
 .hg*
+.idea
 bower_components
 main/index.yaml
 main/lib

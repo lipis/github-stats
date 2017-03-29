@@ -5,11 +5,11 @@ from __future__ import absolute_import
 import functools
 import re
 
-from flask.ext import login
-from flask.ext import wtf
-from flask.ext.oauthlib import client as oauth
+from flask_oauthlib import client as oauth
 from google.appengine.ext import ndb
 import flask
+import flask_login
+import flask_wtf
 import unidecode
 import wtforms
 
@@ -27,10 +27,10 @@ _signals = flask.signals.Namespace()
 ###############################################################################
 # Flask Login
 ###############################################################################
-login_manager = login.LoginManager()
+login_manager = flask_login.LoginManager()
 
 
-class AnonymousUser(login.AnonymousUserMixin):
+class AnonymousUser(flask_login.AnonymousUserMixin):
   id = 0
   admin = False
   name = 'Anonymous'
@@ -84,19 +84,19 @@ login_manager.init_app(app)
 
 
 def current_user_id():
-  return login.current_user.id
+  return flask_login.current_user.id
 
 
 def current_user_key():
-  return login.current_user.user_db.key if login.current_user.user_db else None
+  return flask_login.current_user.user_db.key if flask_login.current_user.user_db else None
 
 
 def current_user_db():
-  return login.current_user.user_db
+  return flask_login.current_user.user_db
 
 
 def is_logged_in():
-  return login.current_user.id != 0
+  return flask_login.current_user.id != 0
 
 
 ###############################################################################
@@ -181,7 +181,7 @@ def permission_required(permission=None, methods=None):
 ###############################################################################
 # Sign in stuff
 ###############################################################################
-class SignInForm(wtf.Form):
+class SignInForm(flask_wtf.FlaskForm):
   email = wtforms.StringField(
     'Email',
     [wtforms.validators.required()],
@@ -195,7 +195,7 @@ class SignInForm(wtf.Form):
     'Keep me signed in',
     [wtforms.validators.optional()],
   )
-  recaptcha = wtf.RecaptchaField()
+  recaptcha = flask_wtf.RecaptchaField()
   next_url = wtforms.HiddenField()
 
 
@@ -235,13 +235,13 @@ def signin():
 ###############################################################################
 # Sign up stuff
 ###############################################################################
-class SignUpForm(wtf.Form):
+class SignUpForm(flask_wtf.FlaskForm):
   email = wtforms.StringField(
     'Email',
     [wtforms.validators.required(), wtforms.validators.email()],
     filters=[util.email_filter],
   )
-  recaptcha = wtf.RecaptchaField()
+  recaptcha = flask_wtf.RecaptchaField()
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -287,8 +287,8 @@ def signup():
 ###############################################################################
 @app.route('/signout/')
 def signout():
-  login.logout_user()
-  return flask.redirect(flask.url_for('welcome'))
+  flask_login.logout_user()
+  return flask.redirect(util.param('next') or flask.url_for('signin'))
 
 
 ###############################################################################
@@ -300,6 +300,7 @@ def url_for_signin(service_name, next_url):
 
 def urls_for_oauth(next_url):
   return {
+    'azure_ad_signin_url': url_for_signin('azure_ad', next_url),
     'bitbucket_signin_url': url_for_signin('bitbucket', next_url),
     'dropbox_signin_url': url_for_signin('dropbox', next_url),
     'facebook_signin_url': url_for_signin('facebook', next_url),
@@ -308,6 +309,7 @@ def urls_for_oauth(next_url):
     'gae_signin_url': url_for_signin('gae', next_url),
     'instagram_signin_url': url_for_signin('instagram', next_url),
     'linkedin_signin_url': url_for_signin('linkedin', next_url),
+    'mailru_signin_url': url_for_signin('mailru', next_url),
     'microsoft_signin_url': url_for_signin('microsoft', next_url),
     'reddit_signin_url': url_for_signin('reddit', next_url),
     'twitter_signin_url': url_for_signin('twitter', next_url),
@@ -410,7 +412,7 @@ def signin_user_db(user_db):
     'remember': False,
   })
   flask.session.pop('auth-params', None)
-  if login.login_user(flask_user_db, remember=auth_params['remember']):
+  if flask_login.login_user(flask_user_db, remember=auth_params['remember']):
     user_db.put_async()
     if user_db.github:
       return flask.redirect(flask.url_for('gh_account', username=user_db.github))
@@ -425,7 +427,7 @@ def get_user_db_from_email(email, password):
     return None
   if len(user_dbs) > 1:
     flask.flash('''We are sorry but it looks like there is a conflict with
-        your account. Our support team is already informed and we will get
+        your account. Our support team has been informed and we will get
         back to you as soon as possible.''', category='danger')
     task.email_conflict_notification(email)
     return False

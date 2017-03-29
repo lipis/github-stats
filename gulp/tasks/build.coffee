@@ -1,6 +1,6 @@
 gulp = require('gulp-help') require 'gulp'
 yargs = require 'yargs-parser'
-$ = do require 'gulp-load-plugins'
+$ = require('gulp-load-plugins')()
 paths = require '../paths'
 
 
@@ -28,7 +28,7 @@ gulp.task 'deploy', 'Deploy project to Google App Engine.', ['build'], ->
 
   gulp.src('run.py').pipe $.start [{
     match: /run.py$/
-    cmd: "gcloud preview app deploy main/*.yaml#{options_str}"
+    cmd: "gcloud app deploy main/*.yaml#{options_str}"
   }]
 
 
