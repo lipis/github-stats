@@ -1,6 +1,8 @@
 GitHub Stats
 ============
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/lipis/github-stats.svg)](https://greenkeeper.io/)
+
 [![Slack Status](https://gae-init-slack.herokuapp.com/badge.svg)](https://gae-init-slack.herokuapp.com)
 
 > GitHub Stats is just a fun project based on [gae-init](http://docs.gae-init.appspot.com)
