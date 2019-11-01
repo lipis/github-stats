@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from flask.ext import wtf
+import flask_wtf
 from google.appengine.ext import ndb
 import flask
 import wtforms
@@ -35,7 +35,7 @@ def admin_account_list():
 ###############################################################################
 # Admin Update
 ###############################################################################
-class AccountUpdateAdminForm(wtf.Form):
+class AccountUpdateAdminForm(flask_wtf.Form):
   username = wtforms.StringField(
       model.Account.username._verbose_name,
       [wtforms.validators.required()],

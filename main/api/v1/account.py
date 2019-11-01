@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 from google.appengine.ext import ndb
-from flask.ext import restful
+import flask_restful
 import flask
 
 from api import helpers
@@ -15,14 +15,14 @@ from main import api_v1
 
 
 @api_v1.resource('/account/', endpoint='api.account.list')
-class AccountListAPI(restful.Resource):
+class AccountListAPI(flask_restful.Resource):
   def get(self):
     account_dbs, account_cursor = model.Account.get_dbs()
     return helpers.make_response(account_dbs, model.Account.FIELDS, account_cursor)
 
 
 @api_v1.resource('/account/<string:account_key>/', endpoint='api.account')
-class AccountAPI(restful.Resource):
+class AccountAPI(flask_restful.Resource):
   def get(self, account_key):
     account_db = ndb.Key(urlsafe=account_key).get()
     if not account_db:
@@ -34,7 +34,7 @@ class AccountAPI(restful.Resource):
 # Admin
 ###############################################################################
 @api_v1.resource('/admin/account/', endpoint='api.admin.account.list')
-class AdminAccountListAPI(restful.Resource):
+class AdminAccountListAPI(flask_restful.Resource):
   @auth.admin_required
   def get(self):
     account_keys = util.param('account_keys', list)
@@ -48,7 +48,7 @@ class AdminAccountListAPI(restful.Resource):
 
 
 @api_v1.resource('/admin/account/<string:account_key>/', endpoint='api.admin.account')
-class AdminAccountAPI(restful.Resource):
+class AdminAccountAPI(flask_restful.Resource):
   @auth.admin_required
   def get(self, account_key):
     account_db = ndb.Key(urlsafe=account_key).get()
