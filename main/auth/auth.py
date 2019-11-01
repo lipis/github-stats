@@ -5,11 +5,12 @@ from __future__ import absolute_import
 import functools
 import re
 
-from flask.ext import login
-from flask.ext import wtf
-from flask.ext.oauthlib import client as oauth
+import authlib.client
+from authlib.flask import client as oauth
 from google.appengine.ext import ndb
 import flask
+import flask_login
+import flask_wtf
 import unidecode
 import wtforms
 
@@ -27,10 +28,10 @@ _signals = flask.signals.Namespace()
 ###############################################################################
 # Flask Login
 ###############################################################################
-login_manager = login.LoginManager()
+login_manager = flask_login.LoginManager()
 
 
-class AnonymousUser(login.AnonymousUserMixin):
+class AnonymousUser(flask_login.AnonymousUserMixin):
   id = 0
   admin = False
   name = 'Anonymous'
@@ -84,19 +85,20 @@ login_manager.init_app(app)
 
 
 def current_user_id():
-  return login.current_user.id
+  return flask_login.current_user.id
 
 
 def current_user_key():
-  return login.current_user.user_db.key if login.current_user.user_db else None
+  return flask_login.current_user.user_db.key \
+      if flask_login.current_user.user_db else None
 
 
 def current_user_db():
-  return login.current_user.user_db
+  return flask_login.current_user.user_db
 
 
 def is_logged_in():
-  return login.current_user.id != 0
+  return flask_login.current_user.id != 0
 
 
 ###############################################################################
@@ -156,7 +158,7 @@ def permission_required(permission=None, methods=None):
     decorator_order_guard(f, 'auth.permission_required')
 
     # default to decorated function name as permission
-    perm = permission or f.func_name
+    perm = permission or f.__name__
     meths = [m.upper() for m in methods] if methods else None
 
     permission_registered.send(f, permission=perm)
@@ -181,7 +183,7 @@ def permission_required(permission=None, methods=None):
 ###############################################################################
 # Sign in stuff
 ###############################################################################
-class SignInForm(wtf.Form):
+class SignInForm(flask_wtf.FlaskForm):
   email = wtforms.StringField(
     'Email',
     [wtforms.validators.required()],
@@ -195,7 +197,7 @@ class SignInForm(wtf.Form):
     'Keep me signed in',
     [wtforms.validators.optional()],
   )
-  recaptcha = wtf.RecaptchaField()
+  recaptcha = flask_wtf.RecaptchaField()
   next_url = wtforms.HiddenField()
 
 
@@ -235,13 +237,13 @@ def signin():
 ###############################################################################
 # Sign up stuff
 ###############################################################################
-class SignUpForm(wtf.Form):
+class SignUpForm(flask_wtf.FlaskForm):
   email = wtforms.StringField(
     'Email',
     [wtforms.validators.required(), wtforms.validators.email()],
     filters=[util.email_filter],
   )
-  recaptcha = wtf.RecaptchaField()
+  recaptcha = flask_wtf.RecaptchaField()
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -287,7 +289,7 @@ def signup():
 ###############################################################################
 @app.route('/signout/')
 def signout():
-  login.logout_user()
+  flask_login.logout_user()
   return flask.redirect(flask.url_for('welcome'))
 
 
@@ -301,27 +303,18 @@ def url_for_signin(service_name, next_url):
 def urls_for_oauth(next_url):
   return {
     'bitbucket_signin_url': url_for_signin('bitbucket', next_url),
-    'dropbox_signin_url': url_for_signin('dropbox', next_url),
     'facebook_signin_url': url_for_signin('facebook', next_url),
     'github_signin_url': url_for_signin('github', next_url),
     'google_signin_url': url_for_signin('google', next_url),
     'gae_signin_url': url_for_signin('gae', next_url),
-    'instagram_signin_url': url_for_signin('instagram', next_url),
-    'linkedin_signin_url': url_for_signin('linkedin', next_url),
     'microsoft_signin_url': url_for_signin('microsoft', next_url),
-    'reddit_signin_url': url_for_signin('reddit', next_url),
     'twitter_signin_url': url_for_signin('twitter', next_url),
-    'vk_signin_url': url_for_signin('vk', next_url),
-    'yahoo_signin_url': url_for_signin('yahoo', next_url),
   }
 
 
 def create_oauth_app(service_config, name):
-  upper_name = name.upper()
-  app.config[upper_name] = service_config
-  service_oauth = oauth.OAuth()
-  service_app = service_oauth.remote_app(name, app_key=upper_name)
-  service_oauth.init_app(app)
+  service_oauth = oauth.OAuth(app)
+  service_app = service_oauth.register(name, **service_config)
   return service_app
 
 
@@ -340,14 +333,22 @@ def save_request_params():
   }
 
 
+def save_oauth1_request_token(token):
+  flask.session['oauth_token'] = token
+
+
+def fetch_oauth1_request_token():
+  return flask.session['oauth_token']
+
+
 def signin_oauth(oauth_app, scheme=None):
   try:
     flask.session.pop('oauth_token', None)
     save_request_params()
-    return oauth_app.authorize(callback=flask.url_for(
+    return oauth_app.authorize_redirect(flask.url_for(
       '%s_authorized' % oauth_app.name, _external=True, _scheme=scheme
     ))
-  except oauth.OAuthException:
+  except authlib.client.OAuthError:
     flask.flash(
       'Something went wrong with sign in. Please try again.',
       category='danger',
@@ -410,7 +411,7 @@ def signin_user_db(user_db):
     'remember': False,
   })
   flask.session.pop('auth-params', None)
-  if login.login_user(flask_user_db, remember=auth_params['remember']):
+  if flask_login.login_user(flask_user_db, remember=auth_params['remember']):
     user_db.put_async()
     if user_db.github:
       return flask.redirect(flask.url_for('gh_account', username=user_db.github))
@@ -425,7 +426,7 @@ def get_user_db_from_email(email, password):
     return None
   if len(user_dbs) > 1:
     flask.flash('''We are sorry but it looks like there is a conflict with
-        your account. Our support team is already informed and we will get
+        your account. Our support team has been informed and we will get
         back to you as soon as possible.''', category='danger')
     task.email_conflict_notification(email)
     return False

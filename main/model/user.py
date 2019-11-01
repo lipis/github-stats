@@ -30,8 +30,21 @@ class User(model.Base):
   def has_permission(self, perm):
     return self.admin or perm in self.permissions
 
+  def has_facebook(self):
+    for auth_id in self.auth_ids:
+      if auth_id.startswith('facebook'):
+        return auth_id
+    return None
+
   def avatar_url_size(self, size=None):
-    return '//gravatar.com/avatar/%(hash)s?d=identicon&r=x%(size)s' % {
+    facebook_id = self.has_facebook()
+    if facebook_id:
+      return 'https://graph.facebook.com/%(id)s/picture%(size)s' % {
+        'id': facebook_id.split('_')[1],
+        'size': '?width=%s&height=%s' % (size, size) if size else '',
+      }
+
+    return 'https://gravatar.com/avatar/%(hash)s?d=identicon&r=x%(size)s' % {
       'hash': hashlib.md5(
         (self.email or self.username).encode('utf-8')).hexdigest(),
       'size': '&s=%d' % size if size > 0 else '',
