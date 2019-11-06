@@ -169,33 +169,38 @@ def email_conflict_notification(email):
 # GH Tasks
 ###############################################################################
 def queue_account(account_db):
+  import logging
   if account_db.status in ['404']:
     return
 
   max_repos = 3000
   queue_it = False
-  delta = (datetime.utcnow() - account_db.modified)
+  delta = datetime.utcnow() - account_db.synced
 
   if account_db.status in ['new', 'error']:
     account_db.status = 'syncing'
+    account_db.synced = datetime.utcnow()
     account_db.put()
     queue_it = True
 
   elif delta.days > 0 and account_db.status == 'failed' and account_db.public_repos < max_repos:
     account_db.status = 'syncing'
+    account_db.synced = datetime.utcnow()
     account_db.put()
     queue_it = True
 
   elif account_db.status == 'syncing':
     if delta.seconds > 60 * 60 or account_db.public_repos > max_repos:
       account_db.status = 'failed'
+      account_db.synced = datetime.utcnow()
       account_db.put()
     elif delta.seconds > 30 * 60:
       queue_it = True
 
-  # If the last sync was a bit old
-  if (delta.seconds > 6 * 60 * 60 or delta.days > 0) and account_db.status != 'failed':
+  # older than 4 hours long sunc them
+  if (delta.days > 0 or delta.seconds > 60 * 60 * 4) and account_db.status != 'failed':
     account_db.status = 'syncing'
+    account_db.synced = datetime.utcnow()
     account_db.put()
     queue_it = True
 
@@ -267,6 +272,7 @@ def sync_account(account_db):
 
   account_db.language = max(languages.iteritems(), key=operator.itemgetter(1))[0] if languages else ''
   account_db.status = 'synced'
+  account_db.synced = datetime.utcnow()
   account_db.stars = stars
   account_db.forks = forks
   account_db.put()
@@ -275,7 +281,7 @@ def sync_account(account_db):
 ###############################################################################
 # Repo Clean-ups
 ###############################################################################
-def queue_repo_cleanup(days=5):
+def queue_repo_cleanup(days=3):
   deferred.defer(repo_cleanup, days)
 
 
@@ -292,3 +298,50 @@ def repo_cleanup(days, cursor=None):
   ndb.delete_multi(repo_keys)
   if repo_cursors['next']:
     deferred.defer(repo_cleanup, days, repo_cursors['next'])
+
+
+###############################################################################
+# Account Clean-ups
+###############################################################################
+def queue_account_cleanup(stars=10000):
+  deferred.defer(account_cleanup, stars)
+
+
+def account_cleanup(stars, cursor=None):
+  account_qry = model.Account.query().filter(model.Account.stars < stars)
+  account_keys, account_cursors = util.get_dbs(
+      account_qry,
+      order='stars',
+      keys_only=True,
+      cursor=cursor,
+    )
+
+  ndb.delete_multi(account_keys)
+  if account_cursors['next']:
+    deferred.defer(account_cleanup, days, account_cursors['next'])
+
+
+###############################################################################
+# Rank Accounts
+###############################################################################
+def rank_accounts(stars=10000):
+  deferred.defer(account_rank, True)
+  deferred.defer(account_rank, False)
+
+
+def account_rank(organization):
+  account_qry = model.Account.query().filter(model.Account.organization == organization)
+  account_dbs, account_cursors = util.get_dbs(
+    account_qry,
+    order='-stars',
+    limit=-1,
+  )
+  updated_dbs = []
+  for index, account_db in enumerate(account_dbs, start=1):
+    if index < config.MAX_DB_LIMIT:
+      account_db.rank = index
+    else:
+      account_db.rank = 0
+    updated_dbs.append(account_db)
+
+  ndb.put_multi(updated_dbs)

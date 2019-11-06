@@ -14,6 +14,7 @@ class Account(model.Base):
   followers = ndb.IntegerProperty(default=0)
   forks = ndb.IntegerProperty(default=0)
   joined = ndb.DateTimeProperty()
+  synced = ndb.DateTimeProperty(auto_now_add=True)
   name = ndb.StringProperty(required=True)
   organization = ndb.BooleanProperty(default=False)
   public_repos = ndb.IntegerProperty(default=0)
@@ -52,6 +53,7 @@ class Account(model.Base):
       'followers': fields.Integer,
       'forks': fields.Integer,
       'joined': fields.DateTime,
+      'synced': fields.DateTime,
       'name': fields.String,
       'organization': fields.Boolean,
       'public_repos': fields.Integer,

@@ -46,5 +46,5 @@ RECAPTCHA_LIMIT = 8
 SIGNIN_RETRY_LIMIT = 4
 TAG_SEPARATOR = ' '
 
-ILLEGAL_KEYS = ['__settings__']
+ILLEGAL_KEYS = ['__settings__', '__transformers__']
 ERRORS = ['failed', 'error', '404']

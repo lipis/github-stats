@@ -19,32 +19,33 @@ def welcome():
   if util.param('username'):
     return flask.redirect(flask.url_for('gh_account', username=util.param('username')))
   person_dbs, person_cursor = model.Account.get_dbs(
-      order='-stars',
-      organization=False,
-    )
+    order='-stars',
+    organization=False,
+  )
 
   organization_dbs, organization_cursor = model.Account.get_dbs(
-      order='-stars',
-      organization=True,
-    )
+    order='-stars',
+    organization=True,
+  )
 
   repo_dbs, repo_cursor = model.Repo.get_dbs(
-      order='-stars',
-    )
+    order='-stars',
+  )
 
   return flask.render_template(
-      'welcome.html',
-      html_class='welcome',
-      title='Top People, Organizations and Repositories',
-      person_dbs=person_dbs,
-      organization_dbs=organization_dbs,
-      repo_dbs=repo_dbs,
-    )
+    'welcome.html',
+    html_class='welcome',
+    title='Top People, Organizations and Repositories',
+    description='Discover new projects from a different perspective.',
+    person_dbs=person_dbs,
+    organization_dbs=organization_dbs,
+    repo_dbs=repo_dbs,
+  )
 
 
 @app.route('/new/')
 def new_accounts():
-  person_dbs, person_cursor = model.Account.get_dbs(
+  account_dbs, account_cursor = model.Account.get_dbs(
     order='-created',
     limit=128,
   )
@@ -53,13 +54,13 @@ def new_accounts():
     'account/list_new.html',
     title='Latest Additions',
     html_class='account-new',
-    person_dbs=person_dbs,
+    account_dbs=account_dbs,
   ))
 
 
 @app.route('/people/')
 def person():
-  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
+  limit = min(int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT), config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'repo' in order:
     order = '-public_repos'
@@ -73,20 +74,21 @@ def person():
     )
 
   response = flask.make_response(flask.render_template(
-      'account/list_person.html',
-      title='Top People',
-      html_class='account-person',
-      person_dbs=person_dbs,
-      order=order,
-      limit=limit,
-    ))
+    'account/list_person.html',
+    title='People',
+    description='Top People on GitHub',
+    html_class='account-person',
+    person_dbs=person_dbs,
+    order=order,
+    limit=limit,
+  ))
   response.set_cookie('limit', str(limit))
   return response
 
 
 @app.route('/organizations/')
 def organization():
-  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
+  limit = min(int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT), config.MAX_DB_LIMIT)
   order = util.param('order') or '-stars'
   if 'repo' in order:
     order = '-public_repos'
@@ -98,20 +100,21 @@ def organization():
     )
 
   response = flask.make_response(flask.render_template(
-      'account/list_organization.html',
-      title='Top Organizations',
-      html_class='account-organization',
-      organization_dbs=organization_dbs,
-      order=order,
-      limit=limit,
-    ))
+    'account/list_organization.html',
+    title='Organizations',
+    description='Top Organizations on GitHub',
+    html_class='account-organization',
+    organization_dbs=organization_dbs,
+    order=order,
+    limit=limit,
+  ))
   response.set_cookie('limit', str(limit))
   return response
 
 
 @app.route('/repositories/')
 def repo():
-  limit = int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT)
+  limit = min(int(util.param('limit', int) or flask.request.cookies.get('limit') or config.MAX_DB_LIMIT), config.MAX_DB_LIMIT * 4)
   order = util.param('order') or '-stars'
   if 'fork' in order:
     order = '-forks'
@@ -122,7 +125,8 @@ def repo():
 
   response = flask.make_response(flask.render_template(
       'account/list_repo.html',
-      title='Top Repositories',
+      title='Repositories',
+      description='Top Repositories on GitHub',
       html_class='account-repo',
       repo_dbs=repo_dbs,
       order=order.replace('-', ''),

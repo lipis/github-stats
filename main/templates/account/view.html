@@ -9,7 +9,12 @@
       <p>
         <img class="avatar" src="{{account_db.avatar_url}}?size=512" alt="Avatar of {{account_db.name}}">
       </p>
-      <h1>{{account_db.name}}</h1>
+      <h1>
+        # if account_db.rank
+          <small title="Global rank">#{{account_db.rank}}</small>
+        # endif
+        {{account_db.name}}
+      </h1>
       <h3 class="ellipsis">
         <a href="https://github.com/{{account_db.username}}" target="_blank">
           github.com/{{account_db.username}}
@@ -31,8 +36,8 @@
       <hr>
       <h4 class="text-muted" title="Last Sync / Status">
         <span class="fa fa-fw fa-refresh {{'fa-spin text-success' if account_db.status == 'syncing'}}"></span>
-        <time datetime="{{account_db.modified}}">
-          {{account_db.modified.strftime('%Y-%m-%d')}}
+        <time datetime="{{account_db.synced}}">
+          {{account_db.synced.strftime('%Y-%m-%d')}}
         </time>
         <small id="status" data-status="{{account_db.status}}">({{account_db.status}})</small>
       </h4>
@@ -53,8 +58,8 @@
                 <span class="octicon {{'octicon-repo-forked' if repo_db.fork else 'octicon-repo'}}"></span>
                 {{repo_db.name}}
               </td>
-              <td class="text-nowrap text-right">{{repo_db.stars_hu}} <span class="octicon octicon-star"></span></td>
-              <td class="text-nowrap text-right text-muted hidden-xs">{{repo_db.forks_hu}} <span class="octicon octicon-repo-forked"></span></td>
+              <td class="text-nowrap text-right"><span class="number">{{repo_db.stars_hu}}</span> <span class="octicon octicon-star"></span></td>
+              <td class="text-nowrap text-right text-muted hidden-xs"><span class="number">{{repo_db.forks_hu}}</span> <span class="octicon octicon-repo-forked"></span></td>
               <td class="text-nowrap text-muted hidden-xs">{{repo_db.language}}</td>
             </tr>
           # endfor

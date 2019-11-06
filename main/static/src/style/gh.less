@@ -2,7 +2,6 @@
   color: fade(@gray-light, 48%);
 }
 
-
 .gh-list {
   .avatar {
     width: 18px;
@@ -16,6 +15,17 @@
   }
 }
 
+.number {
+  font-family: @font-family-monospace;
+  font-size: 0.9em;
+}
+
+.description {
+  margin-top: 8px;
+  color: #777;
+  font-size: 0.9em;
+}
+
 .gh-view {
   h3 {
     margin-top: 4px;
@@ -27,17 +37,34 @@
   }
 }
 
-
 .lead .octicon {
 }
 
 .octicon {
-  h1 &, .h1 & {font-size: @font-size-h1;}
-  h2 &, .h2 & {font-size: @font-size-h2;}
-  h3 &, .h3 & {font-size: @font-size-h3;}
-  h4 &, .h4 & {font-size: @font-size-h4;}
-  h5 &, .h5 & {font-size: @font-size-h5;}
-  h6 &, .h6 & {font-size: @font-size-h6;}
+  h1 &,
+  .h1 & {
+    font-size: @font-size-h1;
+  }
+  h2 &,
+  .h2 & {
+    font-size: @font-size-h2;
+  }
+  h3 &,
+  .h3 & {
+    font-size: @font-size-h3;
+  }
+  h4 &,
+  .h4 & {
+    font-size: @font-size-h4;
+  }
+  h5 &,
+  .h5 & {
+    font-size: @font-size-h5;
+  }
+  h6 &,
+  .h6 & {
+    font-size: @font-size-h6;
+  }
 
   .lead & {
     font-size: floor((@font-size-base * 1.15));

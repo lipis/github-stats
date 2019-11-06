@@ -1,5 +1,5 @@
 {
-  "name": "gae-init",
+  "name": "GitHub Stats",
   "start_url": "/?utm_source=app",
   "display": "standalone",
   "background_color": "#000"

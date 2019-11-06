@@ -4,11 +4,11 @@
     <img class="avatar" src="{{account_db.avatar_url}}?size=48" alt="">
     {{account_db.name}} <small class="text-muted">{{account_db.username}}</small>
   </td>
-  <td class="text-right text-nowrap {{'text-muted' if order and 'star' not in order}}">{{account_db.stars_hu}} <span class="text-muted octicon octicon-star"></span></td>
+  <td class="text-right text-nowrap {{'text-muted' if order and 'star' not in order}}"><span class="number">{{account_db.stars_hu}}</span> <span class="text-muted octicon octicon-star"></span></td>
   # if order
-    <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'repo' not in order}}">{{account_db.public_repos_hu}} <span class="text-muted octicon octicon-repo"></span></td>
+    <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'repo' not in order}}"><span class="number">{{account_db.public_repos_hu}}</span> <span class="text-muted octicon octicon-repo"></span></td>
     # if not account_db.organization
-      <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'follower' not in order}}">{{account_db.followers_hu}} <span class="text-muted fa fa-users"></span></td>
+      <td class="text-right text-nowrap hidden-xs {{'text-muted' if order and 'follower' not in order}}"><span class="number">{{account_db.followers_hu}}</span> <span class="text-muted fa fa-users"></span></td>
     # endif
     <td class="text-nowrap text-muted hidden-xs">{{account_db.language or ''}}</td>
   # endif

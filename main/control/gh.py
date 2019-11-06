@@ -1,16 +1,11 @@
 # coding: utf-8
 
-from datetime import datetime
-from datetime import timedelta
 import json
 
 import flask
-from google.appengine.ext import ndb
-from google.appengine.ext import deferred
 from google.appengine.api import urlfetch
 import github
 
-from api import helpers
 import auth
 import config
 import model
@@ -54,20 +49,23 @@ def gh_account(username, repo=None):
   return flask.render_template(
       'account/view.html',
       html_class='gh-view',
-      title=account_db.name,
+      title='%s%s' % ('#%d - ' % account_db.rank if account_db.rank else '', account_db.name),
+      description='https://github.com/' + account_db.username,
+      image_url=account_db.avatar_url,
+      canonical_url=flask.url_for('gh_account', username=username, _external=True),
       account_db=account_db,
       repo_dbs=repo_dbs,
       next_url=util.generate_next_url(repo_cursor),
       username=account_db.username,
     )
 
+
 ###############################################################################
 # Cron Stuff
 ###############################################################################
 @app.route('/admin/cron/repo/')
+@auth.cron_required
 def gh_admin_top():
-  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
-    flask.abort(403)
   stars = util.param('stars', int) or 10000
   page = util.param('page', int) or 1
   per_page = util.param('per_page', int) or 100
@@ -81,26 +79,25 @@ def gh_admin_top():
   for repo in repos['items']:
     account = repo['owner']
     account_db = model.Account.get_or_insert(
-        account['login'],
-        avatar_url=account['avatar_url'].split('?')[0],
-        email=account['email'] if 'email' in account else '',
-        name=account['login'],
-        followers=account['followers'] if 'followers' in account else 0,
-        organization=account['type'] == 'Organization',
-        username=account['login'],
-      )
+      account['login'],
+      avatar_url=account['avatar_url'].split('?')[0],
+      email=account['email'] if 'email' in account else '',
+      name=account['login'],
+      followers=account['followers'] if 'followers' in account else 0,
+      organization=account['type'] == 'Organization',
+      username=account['login'],
+    )
 
   return 'OK %d of %d' % (len(repos['items']), repos['total_count'])
 
 
 @app.route('/admin/cron/sync/')
+@auth.cron_required
 def admin_cron():
-  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
-    flask.abort(403)
   account_dbs, account_cursor = model.Account.get_dbs(
-      order=util.param('order') or 'modified',
-      status=util.param('status'),
-    )
+    order=util.param('order') or 'synced',
+    status=util.param('status'),
+  )
 
   for account_db in account_dbs:
     task.queue_account(account_db)
@@ -109,8 +106,21 @@ def admin_cron():
 
 
 @app.route('/admin/cron/repo/cleanup/')
+@auth.cron_required
 def admin_repo_cleanup():
-  if config.PRODUCTION and 'X-Appengine-Cron' not in flask.request.headers:
-    flask.abort(403)
   task.queue_repo_cleanup(util.param('days', int) or 5)
+  return 'OK'
+
+
+@app.route('/admin/cron/account/cleanup/')
+@auth.cron_required
+def admin_account_cleanup():
+  task.queue_account_cleanup(util.param('stars', int) or 9999)
+  return 'OK'
+
+
+@app.route('/admin/cron/rank/')
+@auth.cron_required
+def admin_rank():
+  task.rank_accounts()
   return 'OK'

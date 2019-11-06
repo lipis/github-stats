@@ -7,7 +7,7 @@
       <h1 class="text-center">{{title}}</h1>
         <table class="table table-striped table-bordered table-hover gh-list">
           <tbody>
-            # for account_db in person_dbs if account_db.stars > 2000
+            # for account_db in account_dbs if account_db.stars > 2000
               # set index = loop.index
               <tr class="row-link {{'text-danger' if account_db.status in config.ERRORS}} {{'text-success' if account_db.status in ['syncing']}}" id="{{account_db.key.urlsafe()}}" data-href="{{url_for('gh_account', username=account_db.username)}}">
                 <td class="text-right text-nowrap text-muted">{{index}}.</td>

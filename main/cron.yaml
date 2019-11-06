@@ -1,28 +1,36 @@
 cron:
-- description: status=synced
-  url: /admin/cron/sync/?status=synced&limit=32
-  schedule: every 10 minutes
+  - description: status=synced
+    url: /admin/cron/sync/?status=synced&limit=32
+    schedule: every 40 minutes
 
-- description: status=error
-  url: /admin/cron/sync/?status=error&limit=32
-  schedule: every 4 hours
+  - description: status=error
+    url: /admin/cron/sync/?status=error&limit=32
+    schedule: every 12 hours
 
-- description: status=syncing
-  url: /admin/cron/sync/?status=syncing&limit=32
-  schedule: every 4 hours
+  - description: status=syncing
+    url: /admin/cron/sync/?status=syncing&limit=32
+    schedule: every 12 hours
 
-- description: status=new
-  url: /admin/cron/sync/?status=new&limit=32
-  schedule: every 2 hours
+  - description: status=new
+    url: /admin/cron/sync/?status=new&limit=32
+    schedule: every 2 hours
 
-- description: fetch > 2000 stars
-  url: /admin/cron/repo/?stars=2000&page=1
-  schedule: every 4 hours
+  - description: fetch > 12000 stars
+    url: /admin/cron/repo/?stars=19000&page=1
+    schedule: every 12 hours
 
-- description: fetch > 2000 stars
-  url: /admin/cron/repo/?stars=2000&page=2
-  schedule: every 4 hours
+  - description: fetch > 12000 stars
+    url: /admin/cron/repo/?stars=19000&page=2
+    schedule: every 12 hours
 
-- description: cleanup
-  url: /admin/cron/repo/cleanup/?days=4
-  schedule: every day 01:00
+  - description: cleanup-repo
+    url: /admin/cron/repo/cleanup/?days=3
+    schedule: every day 01:00
+
+  - description: cleanup-account
+    url: /admin/cron/account/cleanup/?stars=19000
+    schedule: every day 01:00
+
+  - description: rank-accounts
+    url: /admin/cron/rank/
+    schedule: every day 01:30
